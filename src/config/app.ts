@@ -1,5 +1,5 @@
 import { Config } from '@interfaces/common/config'
-import { NodeEnvironment } from 'types'
+import { NodeEnvironment } from '@app-types/environment'
 import { parseBoolean } from '@utils/parse'
 
 const env = process.env

@@ -1,11 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import 'dotenv/config'
 import path from 'path'
 
 import logger from '@config/logging'
 import { DataSource, DataSourceOptions } from 'typeorm'
-import { NodeEnvironment } from 'types'
+import { NodeEnvironment } from '@app-types/environment'
 import { config } from '@config/app'
+import { tryCatch } from '@utils/try-catch'
 
 const env = config.app.env
 const basePath: string = __dirname
@@ -56,14 +56,13 @@ const databaseConfig: Record<NodeEnvironment, DataSourceOptions> = {
 export const dataSource = new DataSource(databaseConfig[env])
 
 export const database = async (): Promise<void> => {
-  try {
-    await dataSource.initialize()
-    logger.info(
-      `📂 [${env.toUpperCase()}] Connected to ${config.database.connection.toUpperCase()} → ${databaseConfig[env].database}`
-    )
-  } catch (error: any) {
-    logger.error(`❌ Failed to connect with ${config.database.connection}: ${error.message}`)
-    logger.error(`Stack trace: ${error.stack}`)
-    throw error
+  const [err, _] = await tryCatch(dataSource.initialize())
+  if (err) {
+    logger.error(`❌ Failed to connect with ${config.database.connection}: ${err.message}`)
+    logger.error(`Stack trace: ${err.stack}`)
   }
+
+  logger.info(
+    `📂 [${env.toUpperCase()}] Connected to ${config.database.connection.toUpperCase()} → ${databaseConfig[env].database}`
+  )
 }

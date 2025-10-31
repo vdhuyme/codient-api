@@ -1,4 +1,4 @@
-import { NodeEnvironment } from 'types'
+import { NodeEnvironment } from '@app-types/environment'
 
 export interface AppConfig {
   env: NodeEnvironment
