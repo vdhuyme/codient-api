@@ -1,56 +1,70 @@
-import { BASE_STATUS } from '@constants/base.status'
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany
-} from 'typeorm'
-import { Post } from '@entities/post'
-import { Comment } from '@entities/comment'
+import { BASE_STATUS } from '@constants/base.status';
+import { Entity, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm';
+import { Post } from '@entities/post';
+import { Comment } from '@entities/comment';
+import { BaseEntity } from '@entities/base-entity';
+import { Role } from '@entities/role';
+import { Permission } from '@entities/permission';
 
 @Entity({ name: 'users' })
-export class User {
-  @PrimaryGeneratedColumn({ name: 'id' })
-  id: number
+export class User extends BaseEntity {
+  @Column({ type: 'varchar', length: 255 })
+  name: string;
 
-  @Column({ name: 'name', type: 'varchar', length: 255 })
-  name: string
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  avatar?: string | null;
 
-  @Column({ name: 'avatar', type: 'varchar', length: 255, nullable: true })
-  avatar?: string | null
+  @Column({ type: 'varchar', length: 255, unique: true })
+  email: string;
 
-  @Column({ name: 'email', type: 'varchar', length: 255, unique: true })
-  email: string
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  phoneNumber?: string | null;
 
-  @Column({ name: 'phone_number', type: 'varchar', length: 50, nullable: true })
-  phoneNumber?: string | null
+  @Column({ type: 'date', nullable: true })
+  dob?: string | null;
 
-  @Column({ name: 'dob', type: 'date', nullable: true })
-  dob?: string | null
+  @Column({ type: 'varchar', length: 255 })
+  password: string;
 
-  @Column({ name: 'password', type: 'varchar', length: 255, nullable: true })
-  password?: string
-
-  @Column({ name: 'status', type: 'varchar', length: 50, default: BASE_STATUS.ACTIVATED })
-  status: string
+  @Column({
+    name: 'status',
+    type: 'varchar',
+    length: 50,
+    default: BASE_STATUS.ACTIVATED,
+  })
+  status: string;
 
   @Column({ name: 'super_user', type: 'boolean', default: 0 })
-  superUser: number
+  superUser: number;
 
-  @Column({ name: 'roles', type: 'jsonb', default: ['user'] })
-  roles: string[]
+  @OneToMany(() => Post, (post) => post.author, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  posts: Post[];
 
-  @OneToMany(() => Post, post => post.author, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  posts: Post[]
+  @OneToMany(() => Comment, (comment) => comment.user, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  comments: Comment[];
 
-  @OneToMany(() => Comment, comment => comment.user, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  comments: Comment[]
+  @ManyToMany(() => Role, (role) => role.users)
+  @JoinTable({
+    name: 'user_role',
+    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'role_id', referencedColumnName: 'id' },
+  })
+  roles: Role[];
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date
+  @ManyToMany(() => Permission, (permission) => permission.users)
+  @JoinTable({
+    name: 'user_permission',
+    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: {
+      name: 'permission_id',
+      referencedColumnName: 'id',
+    },
+  })
+  permissions: Permission[];
 }

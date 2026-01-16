@@ -1,6 +1,6 @@
-import { storage } from '@utils/storage'
-import { createLogger, format, transports } from 'winston'
-import DailyRotateFile from 'winston-daily-rotate-file'
+import { storage } from '@utils/storage';
+import { createLogger, format, transports } from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
 
 const logger = createLogger({
   level: 'info',
@@ -11,9 +11,9 @@ const logger = createLogger({
         format.colorize(),
         format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
         format.printf(({ timestamp, level, message }) => {
-          return `[${timestamp}] ${level}: ${typeof message === 'object' ? JSON.stringify(message) : message}`
-        })
-      )
+          return `[${timestamp}] ${level}: ${typeof message === 'object' ? JSON.stringify(message) : message}`;
+        }),
+      ),
     }),
 
     new DailyRotateFile({
@@ -21,16 +21,16 @@ const logger = createLogger({
       datePattern: 'YYYY-MM-DD',
       level: 'error',
       zippedArchive: false,
-      maxFiles: '14d'
+      maxFiles: '14d',
     }),
 
     new DailyRotateFile({
       filename: storage.storagePath('logs/combined-%DATE%.json'),
       datePattern: 'YYYY-MM-DD',
       zippedArchive: false,
-      maxFiles: '14d'
-    })
-  ]
-})
+      maxFiles: '14d',
+    }),
+  ],
+});
 
-export default logger
+export default logger;

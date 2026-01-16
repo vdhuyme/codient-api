@@ -1,58 +1,61 @@
-import js from '@eslint/js'
-import tseslint from '@typescript-eslint/eslint-plugin'
-import tsparser from '@typescript-eslint/parser'
-import prettier from 'eslint-config-prettier'
-import importPlugin from 'eslint-plugin-import'
-import pluginPrettier from 'eslint-plugin-prettier'
+import eslint from '@eslint/js';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
+import simpleImportSortPlugin from 'eslint-plugin-simple-import-sort';
 
-/** @type {import("eslint").Linter.FlatConfig[]} */
-export default [
+export default tseslint.config(
   {
-    ignores: ['dist', 'node_modules', 'coverage', 'typeorm-cli.js']
+    ignores: ['eslint.config.mjs'],
   },
-  js.configs.recommended,
   {
-    files: ['**/*.ts'],
+    settings: {
+      'import/resolver': {
+        typescript: {},
+      },
+    },
+  },
+  eslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
+  eslintPluginPrettierRecommended,
+  {
     languageOptions: {
       globals: {
-        process: 'readonly',
-        __dirname: 'readonly'
+        ...globals.node,
+        ...globals.jest,
       },
-      parser: tsparser,
+      sourceType: 'commonjs',
       parserOptions: {
-        project: './tsconfig.json'
-      }
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
     plugins: {
-      '@typescript-eslint': tseslint,
-      import: importPlugin,
-      prettier: pluginPrettier
+      'simple-import-sort': simpleImportSortPlugin,
     },
-    rules: {
-      ...tseslint.configs.recommended.rules,
-      'no-console': 'warn',
-      'import/order': [
-        'warn',
-        {
-          groups: ['builtin', 'external', 'internal', ['parent', 'sibling', 'index']],
-          pathGroups: [
-            {
-              pattern: '@/**',
-              group: 'internal'
-            }
-          ],
-          pathGroupsExcludedImportTypes: ['builtin'],
-          'newlines-between': 'always'
-        }
-      ],
-      '@typescript-eslint/no-unused-vars': [
-        'warn',
-        {
-          argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_'
-        }
-      ]
-    }
   },
-  prettier
-]
+  {
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-floating-promises': 'warn',
+      '@typescript-eslint/no-unsafe-argument': 'warn',
+      'prettier/prettier': ['error', { endOfLine: 'lf' }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+      'simple-import-sort/imports': 'error',
+      'simple-import-sort/exports': 'error',
+      '@typescript-eslint/explicit-member-accessibility': [
+        'warn',
+        { accessibility: 'explicit' },
+      ],
+    },
+  },
+  {
+    files: ['**/*.dto.ts', '**/*.entity.ts'],
+    rules: {
+      '@typescript-eslint/explicit-member-accessibility': 'off',
+    },
+  },
+);

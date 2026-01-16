@@ -1,15 +1,16 @@
-import 'dotenv/config'
-import path from 'path'
+import 'dotenv/config';
+import path from 'path';
 
-import logger from '@config/logging'
-import { DataSource, DataSourceOptions } from 'typeorm'
-import { config } from '@config/app'
-import { tryCatch } from '@utils/try-catch'
+import logger from '@config/logging';
+import { DataSource, DataSourceOptions } from 'typeorm';
+import { config } from '@config/app';
+import { tryCatch } from '@utils/try-catch';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
-import { NodeEnvironment } from './types'
+import { NodeEnvironment } from './types';
 
-const env = config.app.env as NodeEnvironment
-const basePath: string = __dirname
+const env = config.app.env as NodeEnvironment;
+const basePath: string = __dirname;
 
 const databaseConfig: Record<NodeEnvironment, DataSourceOptions> = {
   development: {
@@ -23,7 +24,7 @@ const databaseConfig: Record<NodeEnvironment, DataSourceOptions> = {
     logging: config.database.logging,
     entities: [path.join(basePath, 'entities', '**', '*{.ts,.js}')],
     migrations: [path.join(basePath, 'migrations', '**', '*{.ts,.js}')],
-    subscribers: [path.join(basePath, 'subscribers', '**', '*{.ts,.js}')]
+    namingStrategy: new SnakeNamingStrategy(),
   },
   production: {
     type: 'postgres',
@@ -37,7 +38,7 @@ const databaseConfig: Record<NodeEnvironment, DataSourceOptions> = {
     ssl: config.database.ssl,
     entities: [path.join(basePath, 'entities', '**', '*{.ts,.js}')],
     migrations: [path.join(basePath, 'migrations', '**', '*{.ts,.js}')],
-    subscribers: [path.join(basePath, 'subscribers', '**', '*{.ts,.js}')]
+    namingStrategy: new SnakeNamingStrategy(),
   },
   test: {
     type: 'postgres',
@@ -50,20 +51,22 @@ const databaseConfig: Record<NodeEnvironment, DataSourceOptions> = {
     logging: config.database.logging,
     entities: [path.join(basePath, 'entities', '**', '*{.ts,.js}')],
     migrations: [],
-    subscribers: []
-  }
-}
+    namingStrategy: new SnakeNamingStrategy(),
+  },
+};
 
-export const dataSource = new DataSource(databaseConfig[env])
+export const dataSource = new DataSource(databaseConfig[env]);
 
 export const database = async (): Promise<void> => {
-  const [err, _] = await tryCatch(dataSource.initialize())
+  const [err, _] = await tryCatch(dataSource.initialize());
   if (err) {
-    logger.error(`❌ Failed to connect with ${config.database.connection}: ${err.message}`)
-    logger.error(`Stack trace: ${err.stack}`)
+    logger.error(
+      `❌ Failed to connect with ${config.database.connection}: ${err.message}`,
+    );
+    logger.error(`Stack trace: ${err.stack}`);
   }
 
   logger.info(
-    `📂 [${env.toUpperCase()}] Connected to ${config.database.connection.toUpperCase()} → ${databaseConfig[env].database}`
-  )
-}
+    `📂 [${env.toUpperCase()}] Connected to ${config.database.connection.toUpperCase()} → ${databaseConfig[env].database}`,
+  );
+};

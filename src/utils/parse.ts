@@ -1,21 +1,21 @@
-import logger from '@config/logging'
+import logger from '@config/logging';
 
 export const parseBoolean = (value?: string, defaultValue = false): boolean => {
   if (value === undefined || value === null) {
-    return defaultValue
+    return defaultValue;
   }
 
-  const normalized = value.trim().toLowerCase()
+  const normalized = value.trim().toLowerCase();
 
   if (['true', 'True', '1', 'yes', 'y'].includes(normalized)) {
-    return true
+    return true;
   }
   if (['false', 'False', '0', 'no', 'n'].includes(normalized)) {
-    return false
+    return false;
   }
 
   logger.warn(
-    `[parseBoolean] Unrecognized boolean value "${value}", falling back to default: ${defaultValue}`
-  )
-  return defaultValue
-}
+    `[parseBoolean] Unrecognized boolean value "${value}", falling back to default: ${defaultValue}`,
+  );
+  return defaultValue;
+};

@@ -24,8 +24,6 @@
       "@filters/*": ["./src/filters/*"],
       "@guards/*": ["./src/guards/*"],
       "@interceptors/*": ["./src/interceptors/*"],
-      "@interfaces/*": ["./src/interfaces/*"],
-      "@mappers/*": ["./src/mappers/*"],
       "@middlewares/*": ["./src/middlewares/*"],
       "@migrations/*": ["./src/migrations/*"],
       "@repositories/*": ["./src/repositories/*"],

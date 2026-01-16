@@ -5,5 +5,7 @@ export const BASE_STATUS = {
   ACTIVATED: 'activated',
   BLOCKED: 'blocked',
   DRAFTED: 'drafted',
-  OK: 'ok'
-} as const
+  OK: 'ok',
+} as const;
+
+export type BaseStatus = (typeof BASE_STATUS)[keyof typeof BASE_STATUS];

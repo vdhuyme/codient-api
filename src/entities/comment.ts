@@ -1,41 +1,31 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  CreateDateColumn,
-  UpdateDateColumn
-} from 'typeorm'
-import { User } from '@entities/user'
-import { Post } from '@entities/post'
-import { BASE_STATUS } from '@constants/base.status'
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { User } from '@entities/user';
+import { Post } from '@entities/post';
+import { BASE_STATUS } from '@constants/base.status';
+import { BaseEntity } from '@entities/base-entity';
 
 @Entity({ name: 'comments' })
-export class Comment {
-  @PrimaryGeneratedColumn()
-  id: number
-
+export class Comment extends BaseEntity {
   @Column({ type: 'text' })
-  content: string
+  content: string;
 
-  @Column({ name: 'status', type: 'varchar', length: 50, default: BASE_STATUS.PENDING })
-  status: string
+  @Column({ type: 'varchar', length: 50, default: BASE_STATUS.PENDING })
+  status: string;
 
-  @ManyToOne(() => Post, post => post.comments, {
+  @Column({ type: 'jsonb', nullable: true })
+  images?: string[];
+
+  @ManyToOne(() => Post, (post) => post.comments, {
     onDelete: 'CASCADE',
-    onUpdate: 'CASCADE'
+    onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'post_id' })
-  post: Post
+  post: Post;
 
-  @ManyToOne(() => User, user => user.comments, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.comments, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'user_id' })
-  user: User
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date
+  user: User;
 }

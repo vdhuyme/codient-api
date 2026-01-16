@@ -1,12 +1,16 @@
-import bcrypt from 'bcryptjs'
-import { config } from '@config/app'
+import bcrypt from 'bcryptjs';
+import { config } from '@config/app';
+import { injectable } from 'inversify';
 
-export const Hash = {
-  make(plain: string): string {
-    return bcrypt.hashSync(plain, config.hash.salt)
-  },
+@injectable()
+export class Hash {
+  public constructor(public readonly salt: number = config.hash.salt) {}
 
-  check(plain: string, hash: string): boolean {
-    return bcrypt.compareSync(plain, hash)
+  public async make(data: string): Promise<string> {
+    return bcrypt.hash(data, this.salt);
+  }
+
+  public async check(data: string, encrypted: string): Promise<boolean> {
+    return bcrypt.compare(data, encrypted);
   }
 }
