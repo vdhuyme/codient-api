@@ -1,35 +1,37 @@
-import { NextFunction, Request, Response } from 'express'
-import {
-  controller,
-  httpGet,
-  httpPatch,
-  httpPost,
-  httpPut,
-  next,
-  request,
-  response
-} from 'inversify-express-utils'
 import { OK } from '@constants/http.status.code'
 import { inject } from 'inversify'
 import { REFRESH_TOKEN_REQUEST } from '@requests/refresh.token.request'
 import { jsonResponse } from '@utils/json.response'
 import { validate } from '@decorators/validator'
 import { LOGIN_REQUEST } from '@requests/login.request'
-import { matchedData } from 'express-validator'
 import { TYPES } from '@constants/types'
 import { auth } from '@decorators/authenticate'
 import { IAuthService } from '@services/contracts/auth.service.interface'
 import { CHANGE_PASSWORD_REQUEST } from '@requests/change.password.request'
 import { REGISTER_REQUEST } from '@requests/register.request'
 import { UPDATE_PROFILE_REQUEST } from '@requests/update.profile.request'
+import {
+  Controller,
+  Next,
+  Post,
+  Get,
+  Patch,
+  Put,
+  Request as RequestDecorator,
+  Response as ResponseDecorator
+} from '@inversifyjs/http-core'
 
-@controller('/auth')
+@Controller('/auth')
 export default class AuthController {
   constructor(@inject(TYPES.AuthService) private authService: IAuthService) {}
 
-  @httpPost('/login')
+  @Post('/login')
   @validate(LOGIN_REQUEST)
-  async login(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async login(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const { email, password } = matchedData(req)
 
     try {
@@ -40,9 +42,13 @@ export default class AuthController {
     }
   }
 
-  @httpPost('/register')
+  @Post('/register')
   @validate(REGISTER_REQUEST)
-  async register(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async register(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const { name, email, password } = matchedData(req)
 
     try {
@@ -53,9 +59,13 @@ export default class AuthController {
     }
   }
 
-  @httpGet('/me')
+  @Get('/me')
   @auth()
-  async me(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async me(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const { userId } = req.auth
 
     try {
@@ -66,8 +76,12 @@ export default class AuthController {
     }
   }
 
-  @httpGet('/redirect/google')
-  redirect(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  @Get('/redirect/google')
+  redirect(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     try {
       const url = this.authService.redirect()
       return jsonResponse(res, url)
@@ -76,8 +90,12 @@ export default class AuthController {
     }
   }
 
-  @httpGet('/callback/google')
-  async callback(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  @Get('/callback/google')
+  async callback(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const code = req.query.code as string
 
     try {
@@ -88,12 +106,12 @@ export default class AuthController {
     }
   }
 
-  @httpPost('/refresh-token')
+  @Post('/refresh-token')
   @validate(REFRESH_TOKEN_REQUEST)
   async refreshAccessToken(
-    @request() req: Request,
-    @response() res: Response,
-    @next() next: NextFunction
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
   ) {
     const { refreshToken } = matchedData(req)
     try {
@@ -104,13 +122,13 @@ export default class AuthController {
     }
   }
 
-  @httpPatch('/change-password')
+  @Patch('/change-password')
   @auth()
   @validate(CHANGE_PASSWORD_REQUEST)
   async changePassword(
-    @request() req: Request,
-    @response() res: Response,
-    @next() next: NextFunction
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
   ) {
     const { oldPassword, newPassword } = matchedData(req)
     const { userId } = req.auth
@@ -123,13 +141,13 @@ export default class AuthController {
     }
   }
 
-  @httpPut('/profile')
+  @Put('/profile')
   @auth()
   @validate(UPDATE_PROFILE_REQUEST)
   async updateProfile(
-    @request() req: Request,
-    @response() res: Response,
-    @next() next: NextFunction
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
   ) {
     const data = matchedData(req)
     const { userId } = req.auth
@@ -142,8 +160,12 @@ export default class AuthController {
     }
   }
 
-  @httpGet('/health-check')
-  healthCheck(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  @Get('/health-check')
+  healthCheck(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     try {
       const uptime = process.uptime()
       const timestamp = Date.now()

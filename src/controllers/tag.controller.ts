@@ -9,29 +9,33 @@ import { jsonResponse } from '@utils/json.response'
 import { NextFunction, Request, Response } from 'express'
 import { inject } from 'inversify'
 import {
-  controller,
-  httpDelete,
-  httpGet,
-  httpPost,
-  httpPut,
-  next,
-  request,
-  response
-} from 'inversify-express-utils'
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  Next,
+  Request as RequestDecorator,
+  Response as ResponseDecorator
+} from '@inversifyjs/http-core'
 import { matchedData } from 'express-validator'
 import { QUERY_FILTER_REQUEST } from '@requests/query.filter.request'
 import { ID_REQUEST } from '@requests/id.request'
 import { permissions } from '@decorators/authorize'
 
-@controller('/tags')
+@Controller('/tags')
 export default class TagController {
   constructor(@inject(TYPES.TagService) private tagService: ITagService) {}
 
-  @httpPost('/')
+  @Post('/')
   @auth()
   @permissions('tag.create')
   @validate(CREATE_TAG_REQUEST)
-  async store(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async store(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const data = matchedData(req)
 
     try {
@@ -43,11 +47,15 @@ export default class TagController {
     }
   }
 
-  @httpGet('/')
+  @Get('/')
   @auth()
   @permissions('tag.read')
   @validate(QUERY_FILTER_REQUEST)
-  async index(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async index(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const data = matchedData(req)
 
     try {
@@ -58,11 +66,15 @@ export default class TagController {
     }
   }
 
-  @httpPut('/:id')
+  @Put('/:id')
   @auth()
   @permissions('tag.update')
   @validate([...UPDATE_TAG_REQUEST, ...ID_REQUEST])
-  async update(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async update(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const { id, ...rest } = matchedData(req)
 
     try {
@@ -73,11 +85,15 @@ export default class TagController {
     }
   }
 
-  @httpDelete('/:id')
+  @Delete('/:id')
   @auth()
   @permissions('tag.delete')
   @validate(ID_REQUEST)
-  async destroy(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async destroy(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const data = matchedData(req)
 
     try {

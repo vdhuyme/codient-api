@@ -1,15 +1,15 @@
 import { NextFunction, Request, Response } from 'express'
 import { inject } from 'inversify'
 import {
-  controller,
-  httpDelete,
-  httpGet,
-  httpPost,
-  httpPut,
-  next,
-  request,
-  response
-} from 'inversify-express-utils'
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  Next,
+  Request as RequestDecorator,
+  Response as ResponseDecorator
+} from '@inversifyjs/http-core'
 import { CREATED, OK } from '@constants/http.status.code'
 import { jsonResponse } from '@utils/json.response'
 import { auth } from '@decorators/authenticate'
@@ -23,16 +23,16 @@ import { CREATE_CATEGORY_REQUEST } from '@requests/create.category.request'
 import { ID_REQUEST } from '@requests/id.request'
 import { permissions } from '@decorators/authorize'
 
-@controller('/categories')
+@Controller('/categories')
 export default class CategoryController {
   constructor(@inject(TYPES.CategoryService) private categoryService: ICategoryService) {}
 
-  @httpGet('/published-categories')
+  @Get('/published-categories')
   @validate(QUERY_FILTER_REQUEST)
   async getPublishedCategories(
-    @request() req: Request,
-    @response() res: Response,
-    @next() next: NextFunction
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
   ) {
     const data = matchedData(req)
 
@@ -44,12 +44,12 @@ export default class CategoryController {
     }
   }
 
-  @httpGet('/published-categories/:id')
+  @Get('/published-categories/:id')
   @validate([...QUERY_FILTER_REQUEST, ...ID_REQUEST])
   async getPublishedCategory(
-    @request() req: Request,
-    @response() res: Response,
-    @next() next: NextFunction
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
   ) {
     const { id, ...rest } = matchedData(req)
 
@@ -61,11 +61,15 @@ export default class CategoryController {
     }
   }
 
-  @httpGet('/')
+  @Get('/')
   @auth()
   @permissions('category.read')
   @validate(QUERY_FILTER_REQUEST)
-  async index(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async index(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const data = matchedData(req)
 
     try {
@@ -76,10 +80,14 @@ export default class CategoryController {
     }
   }
 
-  @httpGet('/trees')
+  @Get('/trees')
   @auth()
   @permissions('category.read')
-  async getTrees(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async getTrees(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     try {
       const result = await this.categoryService.getTrees()
       return jsonResponse(res, result)
@@ -88,11 +96,15 @@ export default class CategoryController {
     }
   }
 
-  @httpPost('/')
+  @Post('/')
   @auth()
   @permissions('category.create')
   @validate(CREATE_CATEGORY_REQUEST)
-  async store(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async store(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const data = matchedData(req)
     const { parentId, ...rest } = data
 
@@ -104,11 +116,15 @@ export default class CategoryController {
     }
   }
 
-  @httpPut('/:id')
+  @Put('/:id')
   @auth()
   @permissions('category.update')
   @validate([...UPDATE_CATEGORY_REQUEST, ...ID_REQUEST])
-  async update(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async update(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const { id, parentId, ...rest } = matchedData(req)
 
     try {
@@ -119,10 +135,14 @@ export default class CategoryController {
     }
   }
 
-  @httpDelete('/:id')
+  @Delete('/:id')
   @auth()
   @permissions('category.delete')
-  async destroy(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async destroy(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const id = req.params.id as string
 
     try {

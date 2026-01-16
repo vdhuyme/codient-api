@@ -1,15 +1,15 @@
 import { NextFunction, Request, Response } from 'express'
 import { inject } from 'inversify'
 import {
-  controller,
-  httpDelete,
-  httpGet,
-  httpPost,
-  httpPut,
-  next,
-  request,
-  response
-} from 'inversify-express-utils'
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  Next,
+  Request as RequestDecorator,
+  Response as ResponseDecorator
+} from '@inversifyjs/http-core'
 import { CREATED, OK } from '@constants/http.status.code'
 import { jsonResponse } from '@utils/json.response'
 import { IPostService } from '@services/contracts/post.service.interface'
@@ -24,16 +24,16 @@ import { UPDATE_POST_REQUEST } from '@requests/update.post.request'
 import { QUERY_FILTER_PUBLISHED_POST_REQUEST } from '@requests/query.filter.published.post.request'
 import { permissions } from '@decorators/authorize'
 
-@controller('/posts')
+@Controller('/posts')
 export class PostController {
   constructor(@inject(TYPES.PostService) private postService: IPostService) {}
 
-  @httpGet('/published-posts')
+  @Get('/published-posts')
   @validate(QUERY_FILTER_PUBLISHED_POST_REQUEST)
   async getPublishedPosts(
-    @request() req: Request,
-    @response() res: Response,
-    @next() next: NextFunction
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
   ) {
     const data = matchedData(req)
 
@@ -45,12 +45,12 @@ export class PostController {
     }
   }
 
-  @httpGet('/published-post/:id')
+  @Get('/published-post/:id')
   @validate(ID_REQUEST)
   async getPublishedPost(
-    @request() req: Request,
-    @response() res: Response,
-    @next() next: NextFunction
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
   ) {
     const { id } = matchedData(req)
 
@@ -62,12 +62,12 @@ export class PostController {
     }
   }
 
-  @httpGet('/related-posts/:id')
+  @Get('/related-posts/:id')
   @validate([...QUERY_FILTER_REQUEST, ...ID_REQUEST])
   async getRelatedPosts(
-    @request() req: Request,
-    @response() res: Response,
-    @next() next: NextFunction
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
   ) {
     const { id, limit } = matchedData(req)
 
@@ -79,11 +79,15 @@ export class PostController {
     }
   }
 
-  @httpGet('/')
+  @Get('/')
   @auth()
   @permissions('post.read')
   @validate(QUERY_FILTER_REQUEST)
-  async index(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async index(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const data = matchedData(req)
 
     try {
@@ -94,11 +98,15 @@ export class PostController {
     }
   }
 
-  @httpPost('/')
+  @Post('/')
   @auth()
   @permissions('post.create')
   @validate(CREATE_POST_REQUEST)
-  async store(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async store(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const { categoryId, tagIds, ...rest } = matchedData(req)
     const { userId } = req.auth
 
@@ -110,11 +118,15 @@ export class PostController {
     }
   }
 
-  @httpPut('/:id')
+  @Put('/:id')
   @auth()
   @permissions('post.update')
   @validate([...UPDATE_POST_REQUEST, ...ID_REQUEST])
-  async update(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async update(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const { id, categoryId, tagIds, ...rest } = matchedData(req)
 
     try {
@@ -125,11 +137,15 @@ export class PostController {
     }
   }
 
-  @httpDelete('/:id')
+  @Delete('/:id')
   @auth()
   @permissions('post.delete')
   @validate(ID_REQUEST)
-  async destroy(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async destroy(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const { id } = matchedData(req)
 
     try {

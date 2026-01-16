@@ -9,31 +9,30 @@ import logger from '@config/logging'
 import { database } from './data-source'
 import helmet from 'helmet'
 import compression from 'compression'
-import { InversifyExpressServer } from 'inversify-express-utils'
 import { container } from './inversify-config'
 import { config } from '@config/app'
+import { ClassValidationPipe } from '@inversifyjs/class-validation'
+import { InversifyExpressHttpAdapter } from '@inversifyjs/http-express'
+import { InversifyValidationErrorFilter } from '@inversifyjs/http-validation'
 
 async function bootstrap(): Promise<void> {
   await database()
 
-  const server = new InversifyExpressServer(container)
+  const adapter: InversifyExpressHttpAdapter = new InversifyExpressHttpAdapter(container)
+  const application: express.Application = await adapter.build()
 
-  server.setConfig(app => {
-    app.use(cors())
-    app.use(helmet())
-    app.use(compression())
-    app.use(express.json())
-    app.use(express.urlencoded({ extended: true }))
-  })
+  adapter.useGlobalFilters(InversifyValidationErrorFilter)
+  adapter.useGlobalPipe(new ClassValidationPipe())
 
-  server.setErrorConfig(app => {
-    app.use(notFound)
-    app.use(errorHandler)
-  })
+  application.use(cors())
+  application.use(helmet())
+  application.use(compression())
+  application.use(express.json())
+  application.use(express.urlencoded({ extended: true }))
+  application.use(notFound)
+  application.use(errorHandler)
 
-  const app = server.build()
-
-  app.listen(config.app.port, () => {
+  application.listen(config.app.port, () => {
     const { host, port, env } = config.app
 
     logger.info('🚀 Application started successfully')

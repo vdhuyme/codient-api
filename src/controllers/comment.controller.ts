@@ -13,26 +13,26 @@ import { NextFunction, Request, Response } from 'express'
 import { matchedData } from 'express-validator'
 import { inject } from 'inversify'
 import {
-  controller,
-  httpDelete,
-  httpGet,
-  httpPost,
-  httpPut,
-  next,
-  request,
-  response
-} from 'inversify-express-utils'
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  Next,
+  Request as RequestDecorator,
+  Response as ResponseDecorator
+} from '@inversifyjs/http-core'
 
-@controller('/comments')
+@Controller('/comments')
 export default class CommentController {
   constructor(@inject(TYPES.CommentService) private commentService: ICommentService) {}
 
-  @httpGet('/by-post/:id')
+  @Get('/by-post/:id')
   @validate([...QUERY_FILTER_REQUEST, ...ID_REQUEST])
   async getCommentsByPost(
-    @request() req: Request,
-    @response() res: Response,
-    @next() next: NextFunction
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
   ) {
     const { id, ...rest } = matchedData(req)
 
@@ -44,10 +44,14 @@ export default class CommentController {
     }
   }
 
-  @httpPost('/')
+  @Post('/')
   @auth()
   @validate(CREATE_COMMENT_REQUEST)
-  async store(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async store(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const data = matchedData(req)
     const { userId } = req.auth
 
@@ -59,11 +63,15 @@ export default class CommentController {
     }
   }
 
-  @httpGet('/')
+  @Get('/')
   @auth()
   @permissions('comment.read')
   @validate(QUERY_FILTER_REQUEST)
-  async index(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async index(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const data = matchedData(req)
 
     try {
@@ -74,11 +82,15 @@ export default class CommentController {
     }
   }
 
-  @httpPut('/:id')
+  @Put('/:id')
   @auth()
   @permissions('comment.update')
   @validate([...UPDATE_COMMENT_REQUEST, ...ID_REQUEST])
-  async update(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async update(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const { id, ...rest } = matchedData(req)
 
     try {
@@ -89,11 +101,15 @@ export default class CommentController {
     }
   }
 
-  @httpDelete('/:id')
+  @Delete('/:id')
   @auth()
   @permissions('comment.delete')
   @validate(ID_REQUEST)
-  async destroy(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async destroy(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const { id } = matchedData(req)
 
     try {

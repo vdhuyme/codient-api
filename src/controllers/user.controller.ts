@@ -10,17 +10,28 @@ import { jsonResponse } from '@utils/json.response'
 import { NextFunction, Request, Response } from 'express'
 import { matchedData } from 'express-validator'
 import { inject } from 'inversify'
-import { controller, httpGet, httpPatch, next, request, response } from 'inversify-express-utils'
+import {
+  Controller,
+  Get,
+  Patch,
+  Next,
+  Request as RequestDecorator,
+  Response as ResponseDecorator
+} from '@inversifyjs/http-core'
 
-@controller('/users')
+@Controller('/users')
 export default class UserController {
   constructor(@inject(TYPES.UserService) private userService: IUserService) {}
 
-  @httpGet('/')
+  @Get('/')
   @auth()
   @permissions('user.read')
   @validate(QUERY_FILTER_REQUEST)
-  async index(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async index(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const data = matchedData(req)
 
     try {
@@ -31,11 +42,15 @@ export default class UserController {
     }
   }
 
-  @httpPatch('/:id')
+  @Patch('/:id')
   @auth()
   @permissions('user.update')
   @validate([...ID_REQUEST, ...UPDATE_USER_STATUS_REQUEST])
-  async update(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async update(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const { id, status } = matchedData(req)
 
     try {

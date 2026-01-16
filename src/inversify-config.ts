@@ -25,8 +25,9 @@ import PostService from '@services/implements/post.service'
 import StatsService from '@services/implements/stats.service'
 import TagService from '@services/implements/tag.service'
 import UserService from '@services/implements/user.service'
-import { dataSource } from './data-source'
 import { Container } from 'inversify'
+
+import { dataSource } from './data-source'
 
 const container = new Container()
 

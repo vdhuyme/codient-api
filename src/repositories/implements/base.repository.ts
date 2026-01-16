@@ -24,9 +24,9 @@ import {
 } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 
-export default abstract class BaseRepository<T extends ObjectLiteral>
-  implements IBaseRepository<T>
-{
+export default abstract class BaseRepository<
+  T extends ObjectLiteral
+> implements IBaseRepository<T> {
   protected repository: Repository<T>
   protected metadata: EntityMetadata
   protected dataSource: DataSource

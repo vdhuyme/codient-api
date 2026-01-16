@@ -8,17 +8,27 @@ import { jsonResponse } from '@utils/json.response'
 import { NextFunction, Request, Response } from 'express'
 import { matchedData } from 'express-validator'
 import { inject } from 'inversify'
-import { controller, httpGet, next, request, response } from 'inversify-express-utils'
+import {
+  Controller,
+  Get,
+  Next,
+  Request as RequestDecorator,
+  Response as ResponseDecorator
+} from '@inversifyjs/http-core'
 
-@controller('/stats')
+@Controller('/stats')
 export default class StatsController {
   constructor(@inject(TYPES.StatsService) private statsService: IStatsService) {}
 
-  @httpGet('/ga4')
+  @Get('/ga4')
   @auth()
   @permissions('stats.ga4')
   @validate(GA4_REQUEST)
-  async ga4(@request() req: Request, @response() res: Response, @next() next: NextFunction) {
+  async ga4(
+    @RequestDecorator() req: Request,
+    @ResponseDecorator() res: Response,
+    @Next() next: NextFunction
+  ) {
     const { startAt, endAt } = matchedData(req)
 
     try {
