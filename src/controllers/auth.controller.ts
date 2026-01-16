@@ -1,177 +1,90 @@
-import { OK } from '@constants/http.status.code'
 import { inject } from 'inversify'
-import { REFRESH_TOKEN_REQUEST } from '@requests/refresh.token.request'
-import { jsonResponse } from '@utils/json.response'
-import { validate } from '@decorators/validator'
-import { LOGIN_REQUEST } from '@requests/login.request'
 import { TYPES } from '@constants/types'
-import { auth } from '@decorators/authenticate'
 import { IAuthService } from '@services/contracts/auth.service.interface'
-import { CHANGE_PASSWORD_REQUEST } from '@requests/change.password.request'
-import { REGISTER_REQUEST } from '@requests/register.request'
-import { UPDATE_PROFILE_REQUEST } from '@requests/update.profile.request'
+import { RegisterRequestDto } from '@dtos/register.dto'
 import {
   Controller,
-  Next,
   Post,
   Get,
   Patch,
   Put,
-  Request as RequestDecorator,
-  Response as ResponseDecorator
+  Body,
+  Query,
+  UseGuard,
+  Request,
+  CreatedHttpResponse,
+  OkHttpResponse
 } from '@inversifyjs/http-core'
+import { LoginRequestDto } from '@dtos/login.dto'
+import { RefreshTokenRequestDto } from '@dtos/refresh-token.dto'
+import { ChangePasswordRequestDto } from '@dtos/change-password.dto'
+import { UpdateProfileRequestDto } from '@dtos/update-profile.dto'
+import { JwtGuard } from '@guards/jwt.guard'
+// import { AuthenticatedRequest } from '@app-types/authenticated-request'
 
 @Controller('/auth')
 export default class AuthController {
   constructor(@inject(TYPES.AuthService) private authService: IAuthService) {}
 
   @Post('/login')
-  @validate(LOGIN_REQUEST)
-  async login(
-    @RequestDecorator() req: Request,
-    @ResponseDecorator() res: Response,
-    @Next() next: NextFunction
-  ) {
-    const { email, password } = matchedData(req)
-
-    try {
-      const result = await this.authService.login(email, password)
-      return jsonResponse(res, result, OK)
-    } catch (error) {
-      next(error)
-    }
+  async login(@Body() dto: LoginRequestDto) {
+    const result = await this.authService.login(dto.email, dto.password)
+    return new OkHttpResponse(result)
   }
 
   @Post('/register')
-  @validate(REGISTER_REQUEST)
-  async register(
-    @RequestDecorator() req: Request,
-    @ResponseDecorator() res: Response,
-    @Next() next: NextFunction
-  ) {
-    const { name, email, password } = matchedData(req)
-
-    try {
-      const result = await this.authService.register(name, email, password)
-      return jsonResponse(res, result, OK)
-    } catch (error) {
-      next(error)
-    }
+  async register(@Body() dto: RegisterRequestDto) {
+    const result = await this.authService.register(dto.name, dto.email, dto.password)
+    return new CreatedHttpResponse(result)
   }
 
-  @Get('/me')
-  @auth()
-  async me(
-    @RequestDecorator() req: Request,
-    @ResponseDecorator() res: Response,
-    @Next() next: NextFunction
-  ) {
-    const { userId } = req.auth
-
-    try {
-      const user = await this.authService.getUserInfo(userId)
-      return jsonResponse(res, user)
-    } catch (error) {
-      next(error)
-    }
-  }
+  // @Get('/me')
+  // @UseGuard(JwtGuard)
+  // async me(@Request() req: AuthenticatedRequest) {
+  //   const { userId } = req.auth
+  //   const user = await this.authService.getUserInfo(userId)
+  //   return new OkHttpResponse(user)
+  // }
 
   @Get('/redirect/google')
-  redirect(
-    @RequestDecorator() req: Request,
-    @ResponseDecorator() res: Response,
-    @Next() next: NextFunction
-  ) {
-    try {
-      const url = this.authService.redirect()
-      return jsonResponse(res, url)
-    } catch (error) {
-      next(error)
-    }
+  redirect() {
+    const url = this.authService.redirect()
+    return new OkHttpResponse(url)
   }
 
   @Get('/callback/google')
-  async callback(
-    @RequestDecorator() req: Request,
-    @ResponseDecorator() res: Response,
-    @Next() next: NextFunction
-  ) {
-    const code = req.query.code as string
-
-    try {
-      const result = await this.authService.callback(code)
-      return jsonResponse(res, result)
-    } catch (error) {
-      next(error)
-    }
+  async callback(@Query() query: { code: string }) {
+    return new OkHttpResponse(await this.authService.callback(query.code))
   }
 
   @Post('/refresh-token')
-  @validate(REFRESH_TOKEN_REQUEST)
-  async refreshAccessToken(
-    @RequestDecorator() req: Request,
-    @ResponseDecorator() res: Response,
-    @Next() next: NextFunction
-  ) {
-    const { refreshToken } = matchedData(req)
-    try {
-      const accessToken = this.authService.refreshAccessToken(refreshToken)
-      return jsonResponse(res, accessToken)
-    } catch (error) {
-      next(error)
-    }
+  refreshAccessToken(@Body() dto: RefreshTokenRequestDto) {
+    return new OkHttpResponse(this.authService.refreshAccessToken(dto.refreshToken))
   }
 
-  @Patch('/change-password')
-  @auth()
-  @validate(CHANGE_PASSWORD_REQUEST)
-  async changePassword(
-    @RequestDecorator() req: Request,
-    @ResponseDecorator() res: Response,
-    @Next() next: NextFunction
-  ) {
-    const { oldPassword, newPassword } = matchedData(req)
-    const { userId } = req.auth
+  // @Patch('/change-password')
+  // @UseGuard(JwtGuard)
+  // async changePassword(
+  //   @Body() dto: ChangePasswordRequestDto,
+  //   @Request() req: AuthenticatedRequest
+  // ) {
+  //   const { userId } = req.auth
+  //   return new OkHttpResponse(
+  //     await this.authService.changePassword(userId, dto.oldPassword, dto.newPassword)
+  //   )
+  // }
 
-    try {
-      await this.authService.changePassword(userId, oldPassword, newPassword)
-      return jsonResponse(res, null, OK, 'success')
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  @Put('/profile')
-  @auth()
-  @validate(UPDATE_PROFILE_REQUEST)
-  async updateProfile(
-    @RequestDecorator() req: Request,
-    @ResponseDecorator() res: Response,
-    @Next() next: NextFunction
-  ) {
-    const data = matchedData(req)
-    const { userId } = req.auth
-
-    try {
-      await this.authService.updateProfile(userId, data)
-      return jsonResponse(res, null, OK, 'success')
-    } catch (error) {
-      next(error)
-    }
-  }
+  // @Put('/profile')
+  // @UseGuard(JwtGuard)
+  // async updateProfile(@Body() dto: UpdateProfileRequestDto, @Request() req: AuthenticatedRequest) {
+  //   const { userId } = req.auth
+  //   return await this.authService.updateProfile(userId, dto)
+  // }
 
   @Get('/health-check')
-  healthCheck(
-    @RequestDecorator() req: Request,
-    @ResponseDecorator() res: Response,
-    @Next() next: NextFunction
-  ) {
-    try {
-      const uptime = process.uptime()
-      const timestamp = Date.now()
-      return jsonResponse(res, { uptime, timestamp })
-    } catch (error) {
-      next(error)
-    }
+  healthCheck() {
+    const uptime = process.uptime()
+    const timestamp = Date.now()
+    return { uptime, timestamp }
   }
 }

@@ -1,22 +1,20 @@
 {
-  "name": "codient",
+  "name": "codient-api",
   "version": "1.0.0",
   "description": "Codient is a TypeScript-based backend boilerplate for blogs and developer portfolios.",
   "keywords": [
-    "codient",
-    "blog",
+    "codient-api",
     "backend",
-    "express",
-    "nodejs",
     "typescript",
     "typeorm",
-    "api",
-    "rest-api",
-    "auth"
+    "inversify",
+    "express",
+    "boilerplate",
+    "portfolio"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/vdhuy/codient"
+    "url": "https://github.com/vdhuyme/codient-api"
   },
   "license": "MIT",
   "author": "Vo Duc Huy",

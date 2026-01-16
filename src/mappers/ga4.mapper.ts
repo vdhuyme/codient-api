@@ -1,5 +1,5 @@
 import type { protos } from '@google-analytics/data'
-import { IGA4CountryStatResponse } from 'interfaces'
+import { IGA4CountryStatResponse } from '@interfaces/index'
 
 type RunReportResponse = protos.google.analytics.data.v1beta.IRunReportResponse
 type RunReportRow = protos.google.analytics.data.v1beta.IRow

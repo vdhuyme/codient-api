@@ -2,7 +2,7 @@ import {
   IBaseRepository,
   IPaginationResult,
   IQueryOptions
-} from '@repositories/contracts/base.repository.interface'
+} from '@repositories/contracts/base-repository.interface'
 import {
   FindOptionsWhere,
   FindManyOptions,

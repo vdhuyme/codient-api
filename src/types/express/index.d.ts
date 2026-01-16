@@ -1,9 +1,9 @@
-import { IJwtAuthUserPayload } from '@interfaces/index'
+import { User } from '@entities/user'
 
 declare global {
   namespace Express {
     interface Request {
-      auth: IJwtAuthUserPayload
+      auth?: User | null
     }
   }
 }

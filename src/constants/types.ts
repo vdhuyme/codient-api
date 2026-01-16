@@ -1,4 +1,6 @@
 const TYPES = {
+  Slugify: Symbol.for('Slugify'),
+
   CategoryRepository: Symbol.for('CategoryRepository'),
   CategoryService: Symbol.for('CategoryService'),
   DataSource: Symbol.for('DataSource'),

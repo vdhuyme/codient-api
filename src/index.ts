@@ -2,39 +2,40 @@ import 'dotenv/config'
 import 'reflect-metadata'
 import '@controllers/index'
 import express from 'express'
-import { errorHandler } from '@middlewares/error.handler'
-import cors from 'cors'
-import { notFound } from '@middlewares/not.found'
-import logger from '@config/logging'
-import { database } from './data-source'
-import helmet from 'helmet'
 import compression from 'compression'
-import { container } from './inversify-config'
+import cors from 'cors'
+import helmet from 'helmet'
+import logger from '@config/logging'
 import { config } from '@config/app'
 import { ClassValidationPipe } from '@inversifyjs/class-validation'
 import { InversifyExpressHttpAdapter } from '@inversifyjs/http-express'
 import { InversifyValidationErrorFilter } from '@inversifyjs/http-validation'
+import { HttpErrorFilter } from '@filters/http-error-filter'
+
+import { database } from './data-source'
+import { container } from './provider'
 
 async function bootstrap(): Promise<void> {
   await database()
 
-  const adapter: InversifyExpressHttpAdapter = new InversifyExpressHttpAdapter(container)
-  const application: express.Application = await adapter.build()
+  const server: express.Application = express()
 
-  adapter.useGlobalFilters(InversifyValidationErrorFilter)
+  server.use(cors())
+  server.use(helmet())
+  server.use(compression())
+
+  const adapter: InversifyExpressHttpAdapter = new InversifyExpressHttpAdapter(container, {
+    useJson: true,
+    useUrlEncoded: true
+  })
+  adapter.useGlobalFilters(InversifyValidationErrorFilter, HttpErrorFilter)
+
   adapter.useGlobalPipe(new ClassValidationPipe())
 
-  application.use(cors())
-  application.use(helmet())
-  application.use(compression())
-  application.use(express.json())
-  application.use(express.urlencoded({ extended: true }))
-  application.use(notFound)
-  application.use(errorHandler)
+  const application = await adapter.build()
 
   application.listen(config.app.port, () => {
     const { host, port, env } = config.app
-
     logger.info('🚀 Application started successfully')
     logger.info(`🌐 Environment : ${env}`)
     logger.info(`📡 Listening   : ${host}:${port}`)

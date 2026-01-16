@@ -1,6 +1,6 @@
 import { Comment } from '@entities/comment'
 import { ICommentResponse } from '@mappers/comment.mapper'
-import { IPaginationResult, IQueryOptions } from '@repositories/contracts/base.repository.interface'
+import { IPaginationResult, IQueryOptions } from '@repositories/contracts/base-repository.interface'
 import { IBaseService } from '@services/contracts/base.service.interface'
 import { DeepPartial } from 'typeorm'
 

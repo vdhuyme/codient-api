@@ -1,16 +1,17 @@
 import { googleOAuth2Client } from '@config/google.oauth2'
 import { Hash } from '@config/hash'
-import jsonwebtoken from '@config/jsonwebtoken'
 import { BASE_STATUS } from '@constants/base.status'
 import { TYPES } from '@constants/types'
 import { User } from '@entities/user'
-import BadRequestException from '@exceptions/bad.request.exception'
+import BadRequestException from '@exceptions/bad-request.exception'
 import UnauthorizedException from '@exceptions/unauthorized.exception'
 import { IUserResponse, UserResource } from '@mappers/user.mapper'
 import { IUserRepository } from '@repositories/contracts/user.repository.interface'
 import { IAuthResponse, IAuthService } from '@services/contracts/auth.service.interface'
 import { inject, injectable } from 'inversify'
 import { DeepPartial } from 'typeorm'
+import jwt from 'jsonwebtoken'
+import { config } from '@config/app'
 
 @injectable()
 export default class AuthService implements IAuthService {
@@ -41,14 +42,17 @@ export default class AuthService implements IAuthService {
   }
 
   private generateTokens(user: User): IAuthResponse {
-    const accessToken = jsonwebtoken.generate({
-      userId: user.id,
-      email: user.email,
-      status: user.status
-    })
-    const refreshToken = jsonwebtoken.generate(
+    const accessToken = jwt.sign(
+      {
+        userId: user.id,
+        email: user.email,
+        status: user.status
+      },
+      config.jwt.accessTokenSecretKey
+    )
+    const refreshToken = jwt.sign(
       { userId: user.id, email: user.email, status: user.status },
-      'refresh'
+      config.jwt.refreshTokenSecretKey
     )
     return { accessToken, refreshToken }
   }
@@ -122,9 +126,13 @@ export default class AuthService implements IAuthService {
 
   refreshAccessToken(refreshToken: string): string {
     try {
-      const decoded = jsonwebtoken.verify(refreshToken, 'refresh')
+      const decoded = jwt.verify(refreshToken, config.jwt.refreshTokenSecretKey) as {
+        userId: number
+        email: string
+        status: string
+      }
       const { userId, email, status } = decoded
-      const token = jsonwebtoken.generate({ userId, email, status })
+      const token = jwt.sign({ userId, email, status }, config.jwt.accessTokenSecretKey)
       return token
     } catch (error: unknown) {
       const messages: Record<string, string> = {

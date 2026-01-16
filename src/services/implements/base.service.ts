@@ -2,7 +2,7 @@ import {
   IBaseRepository,
   IPaginationResult,
   IQueryOptions
-} from '@repositories/contracts/base.repository.interface'
+} from '@repositories/contracts/base-repository.interface'
 import {
   FindOptionsWhere,
   FindManyOptions,
@@ -18,7 +18,7 @@ import {
   FindOptionsRelations
 } from 'typeorm'
 import { IBaseService } from '@services/contracts/base.service.interface'
-import ConflictException from '@exceptions/conflict.exception'
+import ConflictException from '@exceptions/conflict-exception'
 
 export default abstract class BaseService<T extends ObjectLiteral> implements IBaseService<T> {
   protected repository: IBaseRepository<T>

@@ -18,24 +18,25 @@
       "@constants/*": ["./src/constants/*"],
       "@controllers/*": ["./src/controllers/*"],
       "@decorators/*": ["./src/decorators/*"],
+      "@dtos/*": ["./src/dtos/*"],
       "@entities/*": ["./src/entities/*"],
       "@exceptions/*": ["./src/exceptions/*"],
+      "@filters/*": ["./src/filters/*"],
+      "@guards/*": ["./src/guards/*"],
+      "@interceptors/*": ["./src/interceptors/*"],
       "@interfaces/*": ["./src/interfaces/*"],
       "@mappers/*": ["./src/mappers/*"],
       "@middlewares/*": ["./src/middlewares/*"],
       "@migrations/*": ["./src/migrations/*"],
       "@repositories/*": ["./src/repositories/*"],
-      "@requests/*": ["./src/requests/*"],
       "@seeders/*": ["./src/seeders/*"],
       "@services/*": ["./src/services/*"],
       "@storage/*": ["./src/storage/*"],
-      "@subscribers/*": ["./src/subscribers/*"],
-      "@app-types/*": ["./src/types/*"],
-      "@utils/*": ["./src/utils/*"],
-      "@validators/*": ["./src/validators/*"]
+      "@types/*": ["./src/types/*"],
+      "@utils/*": ["./src/utils/*"]
     },
     "types": ["node", "express"],
-    "typeRoots": ["./node_modules/@types"]
+    "typeRoots": ["./src/types", "./node_modules/@types"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]

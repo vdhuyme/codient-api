@@ -1,4 +1,3 @@
-// For quick use
 export const ROLES_PERMISSIONS: Record<string, string[]> = {
   admin: [
     'user.read',

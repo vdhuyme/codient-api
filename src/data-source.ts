@@ -3,11 +3,12 @@ import path from 'path'
 
 import logger from '@config/logging'
 import { DataSource, DataSourceOptions } from 'typeorm'
-import { NodeEnvironment } from '@app-types/environment'
 import { config } from '@config/app'
 import { tryCatch } from '@utils/try-catch'
 
-const env = config.app.env
+import { NodeEnvironment } from './types'
+
+const env = config.app.env as NodeEnvironment
 const basePath: string = __dirname
 
 const databaseConfig: Record<NodeEnvironment, DataSourceOptions> = {
