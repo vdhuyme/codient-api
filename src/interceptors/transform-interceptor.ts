@@ -4,6 +4,7 @@ import {
   InterceptorTransformObject,
 } from '@inversifyjs/http-core';
 import Express from 'express';
+import logger from '@config/logging';
 
 @injectable()
 export class TransformInterceptor implements Interceptor<
@@ -15,15 +16,12 @@ export class TransformInterceptor implements Interceptor<
     response: Express.Response,
     next: () => Promise<InterceptorTransformObject>,
   ): Promise<void> {
-    console.log('GLOBAL INTERCEPTOR');
+    const path: string = request.path;
 
-    const transform = await next();
+    logger.info(`Incoming Request: ${request.method} ${path}`);
 
-    transform.push((data) => ({
-      status: 'success',
-      path: request.originalUrl,
-      method: request.method,
-      data,
-    }));
+    await next();
+
+    logger.info(`Outgoing Response: ${request.method} ${path}`);
   }
 }

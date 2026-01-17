@@ -1,4 +1,4 @@
-import { NodeEnvironment } from './environment';
+import { NodeEnvironment } from '@domain/environment';
 
 export interface AppConfig {
   env: NodeEnvironment;

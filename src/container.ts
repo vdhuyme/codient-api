@@ -1,5 +1,5 @@
 import { TYPES } from '@constants/types';
-import { AuthController } from '@controllers/auth.controller';
+import { AuthController } from '@controllers/auth-controller';
 import { InversifyValidationErrorFilter } from '@inversifyjs/http-validation';
 import { HttpErrorFilter } from '@filters/http-error-filter';
 import { Container } from 'inversify';
@@ -12,9 +12,10 @@ import { Category } from '@entities/category';
 import { Post } from '@entities/post';
 import { Comment } from '@entities/comment';
 
-import { dataSource } from './data-source';
+import { dataSource } from './database';
 import { Hash } from '@config/hash';
 import { TransformInterceptor } from '@interceptors/transform-interceptor';
+import { UserRepository } from '@repositories/user-repository';
 
 const container = new Container();
 const entities = [User, Category, Post, Comment];
@@ -43,6 +44,14 @@ container.bind<Hash>(TYPES.Hash).to(Hash).inSingletonScope();
  * @description Bindings for Controllers
  */
 container.bind(AuthController).toSelf().inSingletonScope();
+
+/**
+ * @description Bindings for Repositories
+ */
+container
+  .bind<UserRepository>(TYPES.UserRepository)
+  .to(UserRepository)
+  .inSingletonScope();
 
 /**
  * @description Bindings for Services

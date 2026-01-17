@@ -1,18 +1,15 @@
 import path from 'path';
 
-interface IStorage {
-  storagePath(relativePath?: string): string;
-}
-
-class Storage implements IStorage {
-  private baseStoragePath: string;
-
-  constructor() {
-    this.baseStoragePath = path.join(__dirname, '../storage/');
-  }
+class Storage {
+  private baseStoragePath: string = path.join(__dirname, '../storage/');
+  private basePublicPath: string = path.join(this.baseStoragePath, 'public/');
 
   storagePath(relativePath = ''): string {
     return path.join(this.baseStoragePath, relativePath);
+  }
+
+  public publicPath(relativePath = ''): string {
+    return path.join(this.basePublicPath, relativePath);
   }
 }
 

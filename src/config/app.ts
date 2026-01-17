@@ -1,7 +1,6 @@
+import { Config } from '@domain/config';
+import { NodeEnvironment } from '@domain/environment';
 import { parseBoolean } from '@utils/parse';
-
-import { NodeEnvironment } from '../types';
-import { Config } from '../types/config';
 
 const env = process.env;
 

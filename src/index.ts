@@ -11,13 +11,11 @@ import { InversifyExpressHttpAdapter } from '@inversifyjs/http-express';
 import { InversifyValidationErrorFilter } from '@inversifyjs/http-validation';
 import { HttpErrorFilter } from '@filters/http-error-filter';
 
-import { database } from './data-source';
+import { establishDatabaseConnection } from './database';
 import { container } from './container';
 import { TransformInterceptor } from '@interceptors/transform-interceptor';
 
 async function bootstrap(): Promise<void> {
-  await database();
-
   const server: express.Application = express();
 
   server.use(cors());
@@ -32,6 +30,7 @@ async function bootstrap(): Promise<void> {
   adapter.useGlobalFilters(InversifyValidationErrorFilter, HttpErrorFilter);
   adapter.useGlobalPipe(new ClassValidationPipe());
 
+  await establishDatabaseConnection();
   const application = await adapter.build();
 
   application.listen(config.app.port, () => {

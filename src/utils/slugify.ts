@@ -17,8 +17,6 @@ export interface ISlugify {
 
 @injectable()
 export class Slugify implements ISlugify {
-  public constructor() {}
-
   public generate(options: GenerateSlugOptions): string {
     const [err, slug] = tryCatch(() => {
       const common = slugify(options.text, { lower: true, strict: true });

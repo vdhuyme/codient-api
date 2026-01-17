@@ -4,18 +4,18 @@ import { User } from '@entities/user';
 import BadRequestException from '@exceptions/bad-request.exception';
 import UnauthorizedException from '@exceptions/unauthorized.exception';
 import { inject, injectable } from 'inversify';
-import { Repository } from 'typeorm';
 import jwt from 'jsonwebtoken';
 import { config } from '@config/app';
-import { injectRepository } from '@decorators/inject-repository';
 import { TYPES } from '@constants/types';
 import { tryCatch } from '@utils/try-catch';
+import { UserRepository } from '@repositories/user-repository';
 
 @injectable()
 export default class AuthService {
   constructor(
-    @injectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @inject(TYPES.UserRepository)
+    private readonly userRepository: UserRepository,
+
     @inject(TYPES.Hash)
     private readonly hash: Hash,
   ) {}

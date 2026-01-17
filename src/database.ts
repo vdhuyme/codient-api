@@ -7,7 +7,7 @@ import { config } from '@config/app';
 import { tryCatch } from '@utils/try-catch';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
-import { NodeEnvironment } from './types';
+import { NodeEnvironment } from '@domain/environment';
 
 const env = config.app.env as NodeEnvironment;
 const basePath: string = __dirname;
@@ -57,7 +57,7 @@ const databaseConfig: Record<NodeEnvironment, DataSourceOptions> = {
 
 export const dataSource = new DataSource(databaseConfig[env]);
 
-export const database = async (): Promise<void> => {
+export const establishDatabaseConnection = async (): Promise<void> => {
   const [err, _] = await tryCatch(dataSource.initialize());
   if (err) {
     logger.error(
