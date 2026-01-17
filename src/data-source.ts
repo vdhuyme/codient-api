@@ -57,7 +57,7 @@ const databaseConfig: Record<NodeEnvironment, DataSourceOptions> = {
 
 export const dataSource = new DataSource(databaseConfig[env]);
 
-export const establishDatabaseConnection = async (): Promise<void> => {
+export const database = async (): Promise<void> => {
   const [err, _] = await tryCatch(dataSource.initialize());
   if (err) {
     logger.error(

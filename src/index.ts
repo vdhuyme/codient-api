@@ -1,39 +1,28 @@
 import 'dotenv/config';
 import 'reflect-metadata';
-import express from 'express';
-import compression from 'compression';
-import cors from 'cors';
-import helmet from 'helmet';
 import logger from '@config/logging';
 import { config } from '@config/app';
 import { ClassValidationPipe } from '@inversifyjs/class-validation';
 import { InversifyExpressHttpAdapter } from '@inversifyjs/http-express';
 import { InversifyValidationErrorFilter } from '@inversifyjs/http-validation';
 import { HttpErrorFilter } from '@filters/http-error-filter';
+import Express from 'express';
 
-import { establishDatabaseConnection } from './database';
+import { database } from './data-source';
 import { container } from './container';
 import { TransformInterceptor } from '@interceptors/transform-interceptor';
 
 async function bootstrap(): Promise<void> {
-  const server: express.Application = express();
-
-  server.use(cors());
-  server.use(helmet());
-  server.use(compression());
-
-  const adapter: InversifyExpressHttpAdapter = new InversifyExpressHttpAdapter(
-    container,
-  );
+  const adapter = new InversifyExpressHttpAdapter(container);
 
   adapter.useGlobalInterceptors(TransformInterceptor);
   adapter.useGlobalFilters(InversifyValidationErrorFilter, HttpErrorFilter);
   adapter.useGlobalPipe(new ClassValidationPipe());
 
-  await establishDatabaseConnection();
-  const application = await adapter.build();
+  const app: Express.Application = await adapter.build();
+  await database();
 
-  application.listen(config.app.port, () => {
+  app.listen(config.app.port, () => {
     const { host, port, env } = config.app;
     logger.info('🚀 Application started successfully');
     logger.info(`🌐 Environment : ${env}`);
@@ -41,4 +30,4 @@ async function bootstrap(): Promise<void> {
   });
 }
 
-bootstrap();
+void bootstrap();

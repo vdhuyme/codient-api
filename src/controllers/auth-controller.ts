@@ -4,7 +4,7 @@ import { Controller, Post, Body, OkHttpResponse } from '@inversifyjs/http-core';
 import { LoginDto } from '@dtos/login.dto';
 import AuthService from '@services/auth.service';
 
-@Controller('/auth')
+@Controller({ path: 'auth' })
 export class AuthController {
   constructor(
     @inject(TYPES.AuthService)
@@ -13,7 +13,6 @@ export class AuthController {
 
   @Post('/login')
   async login(@Body() dto: LoginDto) {
-    const result = await this.authService.login(dto.email, dto.password);
-    return new OkHttpResponse(result);
+    return await this.authService.login(dto.email, dto.password);
   }
 }

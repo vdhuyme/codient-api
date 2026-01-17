@@ -13,12 +13,10 @@ export default class UserSeeder extends Seeder {
     }
     const hashedPwd = bcrypt.hashSync(password, 10);
     await dataSource.getRepository<User>(User).insert({
-      id: 1,
       name: 'Vo Duc Huy',
       email: email,
       password: hashedPwd,
       superUser: 1,
-      roles: ['admin', 'user'],
     });
   }
 }

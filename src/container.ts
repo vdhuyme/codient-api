@@ -12,7 +12,7 @@ import { Category } from '@entities/category';
 import { Post } from '@entities/post';
 import { Comment } from '@entities/comment';
 
-import { dataSource } from './database';
+import { dataSource } from './data-source';
 import { Hash } from '@config/hash';
 import { TransformInterceptor } from '@interceptors/transform-interceptor';
 import { UserRepository } from '@repositories/user-repository';
