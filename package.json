@@ -48,6 +48,7 @@
     "google-auth-library": "^10.5.0",
     "inversify": "^7.11.0",
     "jsonwebtoken": "^9.0.3",
+    "multer": "^2.0.2",
     "nanoid": "^5.1.6",
     "pg": "^8.17.1",
     "reflect-metadata": "^0.2.2",
