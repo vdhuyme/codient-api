@@ -1,7 +1,7 @@
 {
   "name": "codient-api",
   "version": "1.0.0",
-  "description": "Codient is a TypeScript-based backend boilerplate for blogs and developer portfolios.",
+  "description": "Codient is a TypeScript-based backend boilerplate that leverages TypeORM and Inversify for building scalable and maintainable server-side applications.",
   "keywords": [
     "codient-api",
     "backend",
@@ -9,8 +9,7 @@
     "typeorm",
     "inversify",
     "express",
-    "boilerplate",
-    "portfolio"
+    "boilerplate"
   ],
   "repository": {
     "type": "git",

@@ -1,7 +1,7 @@
 import { CONFLICT } from '@constants';
-import { HttpException } from '@exceptions';
+import { DomainException } from './domain.exception';
 
-export class ConflictException extends HttpException {
+export class ConflictException extends DomainException {
   constructor(message = 'Conflict Exception', status = CONFLICT) {
     super({
       message,

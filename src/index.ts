@@ -4,7 +4,7 @@ import { logger, config } from '@config';
 import { ClassValidationPipe } from '@inversifyjs/class-validation';
 import { InversifyExpressHttpAdapter } from '@inversifyjs/http-express';
 import { InversifyValidationErrorFilter } from '@inversifyjs/http-validation';
-import { HttpErrorFilter } from '@filters';
+import { DomainErrorFilter } from '@filters';
 import Express from 'express';
 
 import { database } from './data-source';
@@ -19,7 +19,7 @@ async function bootstrap(): Promise<void> {
   });
 
   adapter.useGlobalInterceptors(TransformInterceptor);
-  adapter.useGlobalFilters(InversifyValidationErrorFilter, HttpErrorFilter);
+  adapter.useGlobalFilters(InversifyValidationErrorFilter, DomainErrorFilter);
   adapter.useGlobalPipe(new ClassValidationPipe());
 
   const app: Express.Application = await adapter.build();

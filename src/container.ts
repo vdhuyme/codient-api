@@ -1,7 +1,7 @@
 import { TYPES } from '@constants';
 import { AuthController } from '@controllers';
 import { InversifyValidationErrorFilter } from '@inversifyjs/http-validation';
-import { HttpErrorFilter } from '@filters';
+import { DomainErrorFilter } from '@filters';
 import { Container } from 'inversify';
 import { ISlugify, Slugify } from '@utils';
 import { AuthService } from '@services';
@@ -26,7 +26,7 @@ container.bind<DataSource>(TYPES.DataSource).toConstantValue(dataSource);
 /**
  * @description Bindings for Filters
  */
-container.bind(HttpErrorFilter).toSelf().inSingletonScope();
+container.bind(DomainErrorFilter).toSelf().inSingletonScope();
 container.bind(InversifyValidationErrorFilter).toSelf().inSingletonScope();
 container.bind(TransformInterceptor).toSelf().inRequestScope();
 

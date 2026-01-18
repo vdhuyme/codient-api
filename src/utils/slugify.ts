@@ -3,7 +3,7 @@ import { injectable } from 'inversify';
 import { nanoid } from 'nanoid';
 
 import { tryCatch } from '@utils';
-import { HttpException } from '@exceptions';
+import { DomainException } from '@exceptions';
 
 interface GenerateSlugOptions {
   text: string;
@@ -28,7 +28,7 @@ export class Slugify implements ISlugify {
     });
 
     if (err) {
-      throw new HttpException({
+      throw new DomainException({
         message: 'Failed to generate slug',
         code: 'SLUGIFY_GENERATE_FAILED',
         statusCode: 500,

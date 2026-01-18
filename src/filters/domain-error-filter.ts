@@ -1,13 +1,13 @@
-import { HttpException } from '@exceptions';
+import { DomainException } from '@exceptions';
 import {
   CatchError,
   ErrorFilter,
   BadRequestHttpResponse,
 } from '@inversifyjs/http-core';
 
-@CatchError(HttpException)
-export class HttpErrorFilter implements ErrorFilter<HttpException> {
-  public catch(error: HttpException): void {
+@CatchError(DomainException)
+export class DomainErrorFilter implements ErrorFilter<DomainException> {
+  public catch(error: DomainException): void {
     throw new BadRequestHttpResponse(
       { message: error.message },
       error.message,
