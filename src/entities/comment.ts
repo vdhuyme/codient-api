@@ -1,8 +1,6 @@
+import { BASE_STATUS } from '@constants';
+import { BaseEntity, Post, User } from '@entities';
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { User } from '@entities/user';
-import { Post } from '@entities/post';
-import { BASE_STATUS } from '@constants/base.status';
-import { BaseEntity } from '@entities/base-entity';
 
 @Entity({ name: 'comments' })
 export class Comment extends BaseEntity {

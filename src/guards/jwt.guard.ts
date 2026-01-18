@@ -1,9 +1,9 @@
 import { ExpressGuard } from '@inversifyjs/http-express';
-import { UnauthorizedHttpResponse } from '@inversifyjs/http-core';
 import Express from 'express';
-import { tryCatch } from '@utils/try-catch';
+import { tryCatch } from '@utils';
 import jwt from 'jsonwebtoken';
-import { config } from '@config/app';
+import { config } from '@config';
+import { UnauthorizedException } from '@exceptions';
 
 export class JwtGuard implements ExpressGuard {
   public async activate(req: Express.Request): Promise<boolean> {
@@ -15,10 +15,7 @@ export class JwtGuard implements ExpressGuard {
     });
 
     if (err) {
-      throw new UnauthorizedHttpResponse(
-        { message: 'Authentication failed' },
-        'Authentication failed',
-      );
+      throw new UnauthorizedException();
     }
 
     return true;
@@ -27,17 +24,11 @@ export class JwtGuard implements ExpressGuard {
   private extractTokenFromHeader(req: Express.Request): string {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-      throw new UnauthorizedHttpResponse(
-        { message: 'Missing token' },
-        'Missing token',
-      );
+      throw new UnauthorizedException();
     }
     const parts = authHeader.split(' ');
     if (parts.length !== 2 || parts[0] !== 'Bearer') {
-      throw new UnauthorizedHttpResponse(
-        { message: 'Invalid token format' },
-        'Invalid token format',
-      );
+      throw new UnauthorizedException();
     }
     return parts[1];
   }

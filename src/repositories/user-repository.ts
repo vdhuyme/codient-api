@@ -1,6 +1,6 @@
-import { User } from '@entities/user';
-import { BaseRepository } from './base-repository';
-import { injectRepository } from '@decorators/inject-repository';
+import { User } from '@entities';
+import { BaseRepository } from '@repositories';
+import { injectRepository } from '@decorators';
 import { Repository } from 'typeorm';
 import { injectable } from 'inversify';
 

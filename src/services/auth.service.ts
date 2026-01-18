@@ -1,17 +1,15 @@
-import { googleOAuth2Client } from '@config/google.oauth2';
-import { Hash } from '@config/hash';
+import { googleOAuth2Client, Hash } from '@config';
 import { User } from '@entities/user';
-import BadRequestException from '@exceptions/bad-request.exception';
-import UnauthorizedException from '@exceptions/unauthorized.exception';
+import { BadRequestException, UnauthorizedException } from '@exceptions';
 import { inject, injectable } from 'inversify';
 import jwt from 'jsonwebtoken';
 import { config } from '@config/app';
 import { TYPES } from '@constants/types';
-import { tryCatch } from '@utils/try-catch';
-import { UserRepository } from '@repositories/user-repository';
+import { tryCatch } from '@utils';
+import { UserRepository } from '@repositories';
 
 @injectable()
-export default class AuthService {
+export class AuthService {
   constructor(
     @inject(TYPES.UserRepository)
     private readonly userRepository: UserRepository,

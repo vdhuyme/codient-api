@@ -1,10 +1,6 @@
-import { BASE_STATUS } from '@constants/base.status';
+import { BASE_STATUS } from '@constants';
 import { Entity, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm';
-import { Post } from '@entities/post';
-import { Comment } from '@entities/comment';
-import { BaseEntity } from '@entities/base-entity';
-import { Role } from '@entities/role';
-import { Permission } from '@entities/permission';
+import { BaseEntity, Comment, Permission, Post, Role } from '@entities';
 
 @Entity({ name: 'users' })
 export class User extends BaseEntity {
@@ -27,14 +23,13 @@ export class User extends BaseEntity {
   password: string;
 
   @Column({
-    name: 'status',
     type: 'varchar',
     length: 50,
     default: BASE_STATUS.ACTIVATED,
   })
   status: string;
 
-  @Column({ name: 'super_user', type: 'boolean', default: 0 })
+  @Column({ type: 'boolean', default: 0 })
   superUser: number;
 
   @OneToMany(() => Post, (post) => post.author, {

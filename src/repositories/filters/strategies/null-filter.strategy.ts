@@ -1,9 +1,6 @@
 import { ObjectLiteral } from 'typeorm';
-import {
-  FilterStrategy,
-  FilterStrategyContext,
-} from '../filter-strategy.interface';
-import { NULL_OPERATORS, SqlOperator } from '@constants/sql';
+import { FilterStrategy, FilterStrategyContext } from '@repositories/filters';
+import { NULL_OPERATORS, SqlOperator } from '@constants';
 
 export class NullFilterStrategy<
   E extends ObjectLiteral,

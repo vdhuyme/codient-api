@@ -1,13 +1,12 @@
 import 'dotenv/config';
 import path from 'path';
 
-import logger from '@config/logging';
+import { logger, config } from '@config';
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { config } from '@config/app';
-import { tryCatch } from '@utils/try-catch';
+import { tryCatch } from '@utils';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
-import { NodeEnvironment } from '@domain/environment';
+import { NodeEnvironment } from '@domain';
 
 const env = config.app.env as NodeEnvironment;
 const basePath: string = __dirname;

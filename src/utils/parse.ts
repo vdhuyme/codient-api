@@ -1,4 +1,4 @@
-import logger from '@config/logging';
+import { logger } from '@config';
 
 export const parseBoolean = (value?: string, defaultValue = false): boolean => {
   if (value === undefined || value === null) {

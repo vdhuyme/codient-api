@@ -1,11 +1,12 @@
 import { ObjectLiteral, Repository } from 'typeorm';
-import { FilterStrategy } from './filter-strategy.interface';
-import { FilterValueSanitizer } from './value-sanitizer';
-import { NullFilterStrategy } from './strategies/null-filter.strategy';
-import { ArrayFilterStrategy } from './strategies/array-filter.strategy';
-import { StringFilterStrategy } from './strategies/string-filter.strategy';
-import { ComparisonFilterStrategy } from './strategies/comparison-filter.strategy';
 import { SqlOperator } from '@constants/sql';
+import { FilterStrategy, FilterValueSanitizer } from '@repositories/filters';
+import {
+  NullFilterStrategy,
+  ArrayFilterStrategy,
+  StringFilterStrategy,
+  ComparisonFilterStrategy,
+} from '@repositories/filters/strategies';
 
 export class FilterStrategyFactory<E extends ObjectLiteral> {
   private readonly strategies: FilterStrategy<E>[];

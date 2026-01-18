@@ -1,9 +1,6 @@
 import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
-import { BASE_STATUS } from '@constants/base.status';
-import { User } from '@entities/user';
-import { Category } from '@entities/category';
-import { Comment } from '@entities/comment';
-import { BaseEntity } from '@entities/base-entity';
+import { BaseEntity, Category, Comment, User } from '@entities';
+import { BASE_STATUS } from '@constants';
 
 @Entity({ name: 'posts' })
 export class Post extends BaseEntity {

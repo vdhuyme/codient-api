@@ -1,7 +1,7 @@
-import HttpException from '@exceptions/http.exception';
-import { NOT_FOUND } from '@constants/http.status.code';
+import { HttpException } from '@exceptions';
+import { NOT_FOUND } from '@constants';
 
-export default class NotFoundException extends HttpException {
+export class NotFoundException extends HttpException {
   constructor(message = 'Not Found Exception', status = NOT_FOUND) {
     super({
       message,

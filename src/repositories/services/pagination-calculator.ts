@@ -1,4 +1,4 @@
-import { PaginationResult } from '../../domain/pagination';
+import { PaginationResult } from '@domain';
 
 export class PaginationCalculator {
   private readonly MIN_PAGE = 1;

@@ -1,14 +1,16 @@
-import { Filtering, FilterRule } from '../../domain/filterable';
 import {
   ARRAY_OPERATORS,
   NULL_OPERATORS,
   SQL_OPERATORS,
   SqlOperator,
   STRING_MATCH_OPERATORS,
-} from '@constants/sql';
-import BadRequestException from '@exceptions/bad-request.exception';
-import { FilterStrategyFactory } from '@repositories/filters/filter-strategy.factory';
-import { FilterValueSanitizer } from '@repositories/filters/value-sanitizer';
+} from '@constants';
+import { Filtering, FilterRule } from '@domain';
+import { BadRequestException } from '@exceptions';
+import {
+  FilterStrategyFactory,
+  FilterValueSanitizer,
+} from '@repositories/filters';
 import { ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
 
 interface FilterGroup {

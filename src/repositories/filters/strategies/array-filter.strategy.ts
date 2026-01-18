@@ -1,9 +1,9 @@
 import { ObjectLiteral } from 'typeorm';
-import { FilterValueSanitizer } from '../value-sanitizer';
 import {
   FilterStrategy,
   FilterStrategyContext,
-} from '../filter-strategy.interface';
+  FilterValueSanitizer,
+} from '@repositories/filters';
 import { ARRAY_OPERATORS, SqlOperator } from '@constants/sql';
 
 export class ArrayFilterStrategy<

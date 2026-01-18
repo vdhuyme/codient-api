@@ -6,14 +6,14 @@ import {
   ForbiddenHttpResponse,
   UnauthorizedHttpResponse,
 } from '@inversifyjs/http-core';
-import { TYPES } from '@constants/types';
+import { TYPES } from '@constants';
 import {
   MatchMode,
   PERMISSIONS_KEY,
   PERMISSIONS_MATCH_MODE_KEY,
-} from '@decorators/permissions';
+} from '@decorators';
 import { Repository } from 'typeorm';
-import { User } from '@entities/user';
+import { User } from '@entities';
 
 @injectable()
 export class PermissionGuard implements ExpressGuard {

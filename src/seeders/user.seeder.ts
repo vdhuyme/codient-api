@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { User } from '@entities/user';
+import { User } from '@entities';
 import { Seeder } from '@jorgebodega/typeorm-seeding';
 import { DataSource } from 'typeorm';
 import bcrypt from 'bcryptjs';

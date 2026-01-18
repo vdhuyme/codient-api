@@ -1,5 +1,5 @@
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
-import { config } from '@config/app';
+import { config } from '@config';
 
 const credentials = config.ga4.credentials;
 if (!credentials) {

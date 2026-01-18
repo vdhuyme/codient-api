@@ -1,5 +1,5 @@
-import { Sorting } from '../../domain/sortable';
-import BadRequestException from '@exceptions/bad-request.exception';
+import { Sorting } from '@domain';
+import { BadRequestException } from '@exceptions';
 import { ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
 
 export class SortApplier<E extends ObjectLiteral> {

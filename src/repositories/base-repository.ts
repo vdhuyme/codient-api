@@ -1,11 +1,10 @@
-import { Filtering } from '../domain/filterable';
-import { Pagination } from '../domain/paginatable';
-import { PaginationResult } from '../domain/pagination';
-import { Sorting } from '../domain/sortable';
+import { Filtering, Pagination, PaginationResult, Sorting } from '@domain';
 import { ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
-import { FilterApplier } from './services/filter-applier';
-import { SortApplier } from './services/sort-applier';
-import { PaginationCalculator } from './services/pagination-calculator';
+import {
+  FilterApplier,
+  PaginationCalculator,
+  SortApplier,
+} from '@repositories/services';
 
 interface IBaseRepository<T extends ObjectLiteral> extends Repository<T> {
   paginate(

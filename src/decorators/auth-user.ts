@@ -1,7 +1,9 @@
-import { createCustomParameterDecorator } from '@inversifyjs/http-core';
-import { UnauthorizedHttpResponse } from '@inversifyjs/http-core';
+import {
+  createCustomParameterDecorator,
+  UnauthorizedHttpResponse,
+} from '@inversifyjs/http-core';
 import { Request } from 'express';
-import { User } from '@entities/user';
+import { User } from '@entities';
 
 export const AuthUser = createCustomParameterDecorator<Request, unknown, User>(
   (request: Request): User => {

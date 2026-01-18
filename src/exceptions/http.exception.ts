@@ -1,6 +1,6 @@
 import { BAD_REQUEST } from '@constants/http.status.code';
 
-export default class HttpException extends Error {
+export class HttpException extends Error {
   public readonly code: string;
   public readonly statusCode: number;
   public readonly args?: Record<string, unknown>;

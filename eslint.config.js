@@ -1,4 +1,6 @@
+// @ts-check
 import eslint from '@eslint/js';
+import pluginImport from 'eslint-plugin-import';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
@@ -32,6 +34,7 @@ export default tseslint.config(
     },
     plugins: {
       'simple-import-sort': simpleImportSortPlugin,
+      import: pluginImport,
     },
   },
   {
@@ -46,6 +49,7 @@ export default tseslint.config(
       ],
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
+      'no-duplicate-imports': ['error', { includeExports: true }],
       '@typescript-eslint/explicit-member-accessibility': [
         'warn',
         { accessibility: 'explicit' },

@@ -1,7 +1,7 @@
-import HttpException from '@exceptions/http.exception';
-import { UNAUTHORIZED } from '@constants/http.status.code';
+import { HttpException } from '@exceptions';
+import { UNAUTHORIZED } from '@constants';
 
-export default class UnauthorizedException extends HttpException {
+export class UnauthorizedException extends HttpException {
   constructor(message = 'Unauthorized Exception', status = UNAUTHORIZED) {
     super({
       message,

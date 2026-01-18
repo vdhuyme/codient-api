@@ -1,19 +1,22 @@
 import 'dotenv/config';
 import 'reflect-metadata';
-import logger from '@config/logging';
-import { config } from '@config/app';
+import { logger, config } from '@config';
 import { ClassValidationPipe } from '@inversifyjs/class-validation';
 import { InversifyExpressHttpAdapter } from '@inversifyjs/http-express';
 import { InversifyValidationErrorFilter } from '@inversifyjs/http-validation';
-import { HttpErrorFilter } from '@filters/http-error-filter';
+import { HttpErrorFilter } from '@filters';
 import Express from 'express';
 
 import { database } from './data-source';
 import { container } from './container';
-import { TransformInterceptor } from '@interceptors/transform-interceptor';
+import { TransformInterceptor } from '@interceptors';
 
 async function bootstrap(): Promise<void> {
-  const adapter = new InversifyExpressHttpAdapter(container);
+  const adapter = new InversifyExpressHttpAdapter(container, {
+    logger: true,
+    useJson: true,
+    useUrlEncoded: true,
+  });
 
   adapter.useGlobalInterceptors(TransformInterceptor);
   adapter.useGlobalFilters(InversifyValidationErrorFilter, HttpErrorFilter);

@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { config } from '@config/app';
+import { config } from '@config';
 import { injectable } from 'inversify';
 
 @injectable()

@@ -1,9 +1,9 @@
 import slugify from 'slugify';
 import { injectable } from 'inversify';
 import { nanoid } from 'nanoid';
-import HttpException from '@exceptions/http.exception';
 
-import { tryCatch } from './try-catch';
+import { tryCatch } from '@utils';
+import { HttpException } from '@exceptions';
 
 interface GenerateSlugOptions {
   text: string;

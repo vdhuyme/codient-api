@@ -1,5 +1,5 @@
-import { Filtering } from '../../domain/filterable';
-import { SqlOperator } from '@constants/sql';
+import { SqlOperator } from '@constants';
+import { Filtering } from '@domain';
 import { ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
 
 export interface FilterStrategyContext<E extends ObjectLiteral> {

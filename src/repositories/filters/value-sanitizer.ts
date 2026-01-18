@@ -1,4 +1,4 @@
-import { SanitizedValue } from '@constants/sql';
+import { SanitizedValue } from '@constants';
 import { ColumnType, ObjectLiteral, Repository } from 'typeorm';
 
 export class FilterValueSanitizer<E extends ObjectLiteral> {

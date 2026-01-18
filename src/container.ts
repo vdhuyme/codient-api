@@ -1,21 +1,18 @@
-import { TYPES } from '@constants/types';
-import { AuthController } from '@controllers/auth-controller';
+import { TYPES } from '@constants';
+import { AuthController } from '@controllers';
 import { InversifyValidationErrorFilter } from '@inversifyjs/http-validation';
-import { HttpErrorFilter } from '@filters/http-error-filter';
+import { HttpErrorFilter } from '@filters';
 import { Container } from 'inversify';
-import { ISlugify, Slugify } from '@utils/slugify';
-import AuthService from '@services/auth.service';
-import { getRepositoryToken } from '@decorators/inject-repository';
-import { User } from '@entities/user';
+import { ISlugify, Slugify } from '@utils';
+import { AuthService } from '@services';
+import { getRepositoryToken } from '@decorators';
+import { Category, Comment, Post, User } from '@entities';
 import { DataSource } from 'typeorm';
-import { Category } from '@entities/category';
-import { Post } from '@entities/post';
-import { Comment } from '@entities/comment';
 
 import { dataSource } from './data-source';
 import { Hash } from '@config/hash';
-import { TransformInterceptor } from '@interceptors/transform-interceptor';
-import { UserRepository } from '@repositories/user-repository';
+import { TransformInterceptor } from '@interceptors';
+import { UserRepository } from '@repositories';
 
 const container = new Container();
 const entities = [User, Category, Post, Comment];

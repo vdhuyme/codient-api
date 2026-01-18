@@ -6,9 +6,8 @@ import {
   TreeParent,
   OneToMany,
 } from 'typeorm';
-import { BASE_STATUS } from '@constants/base.status';
-import { Post } from '@entities/post';
-import { BaseEntity } from '@entities/base-entity';
+import { BASE_STATUS } from '@constants';
+import { Post, BaseEntity } from '@entities';
 
 @Entity('categories')
 @Tree('closure-table', {

@@ -1,4 +1,4 @@
-import { storage } from '@utils/storage';
+import { storage } from '@utils';
 import { createLogger, format, transports } from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 
@@ -33,4 +33,4 @@ const logger = createLogger({
   ],
 });
 
-export default logger;
+export { logger };
