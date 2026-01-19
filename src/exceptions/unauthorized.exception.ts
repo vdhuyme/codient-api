@@ -1,4 +1,4 @@
-import { DomainException } from './domain.exception';
+import { DomainException } from '@exceptions/domain.exception';
 import { UNAUTHORIZED } from '@constants';
 
 export class UnauthorizedException extends DomainException {

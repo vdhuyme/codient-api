@@ -1,4 +1,4 @@
-import { DomainException } from './domain.exception';
+import { DomainException } from '@exceptions/domain.exception';
 import { NOT_FOUND } from '@constants';
 
 export class NotFoundException extends DomainException {

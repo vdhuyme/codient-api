@@ -1,5 +1,5 @@
 import { BAD_REQUEST } from '@constants';
-import { DomainException } from './domain.exception';
+import { DomainException } from '@exceptions/domain.exception';
 
 export class BadRequestException extends DomainException {
   constructor(message = 'BadRequest Exception', status = BAD_REQUEST) {

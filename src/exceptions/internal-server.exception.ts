@@ -1,4 +1,4 @@
-import { DomainException } from './domain.exception';
+import { DomainException } from '@exceptions/domain.exception';
 import { INTERNAL_SERVER_ERROR } from '@constants';
 
 export class InternalServerException extends DomainException {
