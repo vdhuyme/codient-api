@@ -6,7 +6,7 @@ import {
   TreeParent,
   OneToMany,
 } from 'typeorm';
-import { BASE_STATUS } from '@constants';
+import { BASE_STATUS, BaseStatus } from '@constants';
 import { Post, BaseEntity } from '@entities';
 
 @Entity('categories')
@@ -27,8 +27,12 @@ export class Category extends BaseEntity {
   @Column({ type: 'varchar', unique: true })
   slug: string;
 
-  @Column({ type: 'varchar', length: 50, default: BASE_STATUS.PUBLISHED })
-  status: string;
+  @Column({
+    type: 'varchar',
+    length: 50,
+    default: BASE_STATUS.ACTIVATED,
+  })
+  status: BaseStatus;
 
   @Column({ type: 'text', nullable: true })
   description?: string | null;

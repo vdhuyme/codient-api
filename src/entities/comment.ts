@@ -1,4 +1,4 @@
-import { BASE_STATUS } from '@constants';
+import { BASE_STATUS, BaseStatus } from '@constants';
 import { BaseEntity, Post, User } from '@entities';
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 
@@ -7,8 +7,12 @@ export class Comment extends BaseEntity {
   @Column({ type: 'text' })
   content: string;
 
-  @Column({ type: 'varchar', length: 50, default: BASE_STATUS.PENDING })
-  status: string;
+  @Column({
+    type: 'varchar',
+    length: 50,
+    default: BASE_STATUS.ACTIVATED,
+  })
+  status: BaseStatus;
 
   @Column({ type: 'jsonb', nullable: true })
   images?: string[];

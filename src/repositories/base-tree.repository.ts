@@ -1,14 +1,14 @@
-import { ObjectLiteral, QueryRunner, Repository } from 'typeorm';
+import { BaseQueryBuilder } from '@repositories';
 import {
   FilterApplier,
   PaginationCalculator,
   SortApplier,
 } from '@repositories/services';
-import { BaseQueryBuilder } from '@repositories';
+import { ObjectLiteral, QueryRunner, TreeRepository } from 'typeorm';
 
-export abstract class BaseRepository<
+export abstract class BaseTreeRepository<
   T extends ObjectLiteral,
-> extends Repository<T> {
+> extends TreeRepository<T> {
   public override createQueryBuilder(
     alias?: string,
     queryRunner?: QueryRunner,

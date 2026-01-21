@@ -4,19 +4,43 @@ import { tryCatch } from '@utils';
 import jwt from 'jsonwebtoken';
 import { config } from '@config';
 import { UnauthorizedException } from '@exceptions';
+import { Repository } from 'typeorm';
+import { User } from '@entities';
+import { BaseStatus } from '@constants';
+import { injectRepository } from '@decorators';
+import { UnauthorizedHttpResponse } from '@inversifyjs/http-core';
 
 export class JwtGuard implements ExpressGuard {
+  constructor(
+    @injectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
+
   public async activate(req: Express.Request): Promise<boolean> {
-    const [err, _] = tryCatch(() => {
+    const [err, data] = tryCatch(() => {
       const token = this.extractTokenFromHeader(req);
 
       const decoded = jwt.verify(token, config.jwt.accessTokenSecretKey);
-      return decoded;
+      return decoded as { userId: string; email: string; status: BaseStatus };
     });
 
     if (err) {
       throw new UnauthorizedException();
     }
+
+    const user = await this.userRepository.findOne({
+      where: { id: data.userId },
+      relations: { roles: { permissions: true }, permissions: true },
+    });
+
+    if (!user) {
+      throw new UnauthorizedHttpResponse(
+        { message: 'User not found' },
+        'User not found',
+      );
+    }
+
+    req.auth = user;
 
     return true;
   }

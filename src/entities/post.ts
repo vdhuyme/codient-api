@@ -1,6 +1,6 @@
 import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { BaseEntity, Category, Comment, User } from '@entities';
-import { BASE_STATUS } from '@constants';
+import { BASE_STATUS, BaseStatus } from '@constants';
 
 @Entity({ name: 'posts' })
 export class Post extends BaseEntity {
@@ -19,8 +19,12 @@ export class Post extends BaseEntity {
   @Column({ type: 'text' })
   content: string;
 
-  @Column({ type: 'varchar', length: 50, default: BASE_STATUS.PUBLISHED })
-  status: string;
+  @Column({
+    type: 'varchar',
+    length: 50,
+    default: BASE_STATUS.ACTIVATED,
+  })
+  status: BaseStatus;
 
   @Column({ type: 'int', nullable: true })
   readTime?: number | null;

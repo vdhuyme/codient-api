@@ -1,62 +1,34 @@
 import 'reflect-metadata';
-import Express from 'express';
-import { injectable, inject } from 'inversify';
+import { Request } from 'express';
+import { injectable } from 'inversify';
 import { ExpressGuard } from '@inversifyjs/http-express';
 import {
   ForbiddenHttpResponse,
   UnauthorizedHttpResponse,
 } from '@inversifyjs/http-core';
-import { TYPES } from '@constants';
 import {
   MatchMode,
   PERMISSIONS_KEY,
   PERMISSIONS_MATCH_MODE_KEY,
 } from '@decorators';
-import { Repository } from 'typeorm';
-import { User } from '@entities';
 
 @injectable()
 export class PermissionGuard implements ExpressGuard {
-  constructor(
-    @inject(TYPES.DataSource)
-    private readonly userRepository: Repository<User>,
-  ) {}
-
-  public async activate(req: Express.Request): Promise<boolean> {
+  public async activate(req: Request): Promise<boolean> {
     const handler = req.route?.handler;
-
-    if (!handler) {
-      return true;
-    }
 
     const requiredPermissions: string[] =
       Reflect.getMetadata(PERMISSIONS_KEY, handler) ?? [];
 
-    if (!requiredPermissions.length) {
-      return true;
-    }
+    const matchMode: MatchMode =
+      Reflect.getMetadata(PERMISSIONS_MATCH_MODE_KEY, handler) ?? 'any';
 
-    const matchMode: MatchMode = Reflect.getMetadata(
-      PERMISSIONS_MATCH_MODE_KEY,
-      handler,
-    );
+    const user = req.auth;
 
-    const authUser = req.auth;
-    if (!authUser) {
-      throw new UnauthorizedHttpResponse(
-        { message: 'Missing user identity' },
-        'Missing user identity',
-      );
-    }
-
-    const user = await this.userRepository.findOne({
-      where: { id: authUser.id },
-      relations: { roles: { permissions: true }, permissions: true },
-    });
     if (!user) {
       throw new UnauthorizedHttpResponse(
-        { message: 'User not found' },
-        'User not found',
+        { message: 'User not authenticated' },
+        'Unauthorized',
       );
     }
 

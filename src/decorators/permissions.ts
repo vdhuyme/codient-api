@@ -11,16 +11,13 @@ export function Permissions(
 ): MethodDecorator {
   const required = Array.isArray(permission) ? permission : [permission];
 
-  return (
-    _target: unknown,
-    _key: string | symbol,
-    descriptor: PropertyDescriptor,
-  ) => {
-    Reflect.defineMetadata(PERMISSIONS_KEY, required, descriptor.value);
+  return (target, propertyKey) => {
+    Reflect.defineMetadata(PERMISSIONS_KEY, required, target, propertyKey);
     Reflect.defineMetadata(
       PERMISSIONS_MATCH_MODE_KEY,
       matchMode,
-      descriptor.value,
+      target,
+      propertyKey,
     );
   };
 }

@@ -1,4 +1,4 @@
-import { BASE_STATUS } from '@constants';
+import { BASE_STATUS, BaseStatus } from '@constants';
 import { Entity, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { BaseEntity, Comment, Permission, Post, Role } from '@entities';
 
@@ -27,7 +27,7 @@ export class User extends BaseEntity {
     length: 50,
     default: BASE_STATUS.ACTIVATED,
   })
-  status: string;
+  status: BaseStatus;
 
   @Column({ type: 'boolean', default: 0 })
   superUser: number;

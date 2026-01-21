@@ -10,6 +10,6 @@ export class UserRepository extends BaseRepository<User> {
     @injectRepository(User)
     repository: Repository<User>,
   ) {
-    super(repository);
+    super(repository.target, repository.manager, repository.queryRunner);
   }
 }
