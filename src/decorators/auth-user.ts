@@ -5,7 +5,7 @@ import {
 import { Request } from 'express';
 import { User } from '@entities';
 
-export const AuthUser = createCustomParameterDecorator<Request, unknown, User>(
+export const authUser = createCustomParameterDecorator<Request, unknown, User>(
   (request: Request): User => {
     const user = request.auth;
 

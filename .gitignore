@@ -15,3 +15,5 @@ src/storage/logs/*
 src/storage/data/*
 !src/storage/data/.gitkeep
 !src/storage/data/roles-permissions.json
+
+coverage/

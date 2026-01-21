@@ -29,6 +29,7 @@
     "production": "npm run build && npm start",
     "seed:up": "ts-node -r tsconfig-paths/register ./node_modules/@jorgebodega/typeorm-seeding/dist/cli.js seed -d src/data-source.ts src/seeders/**/*{.ts,.js}",
     "start": "node dist/index.js",
+    "test": "jest --passWithNoTests",
     "typeorm": "node -r ts-node/register -r tsconfig-paths/register ./typeorm-cli.js"
   },
   "dependencies": {
@@ -58,10 +59,41 @@
     "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0"
   },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "!src/index.ts"
+    ],
+    "coverageDirectory": "coverage",
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "moduleNameMapper": {
+      "^@core/(.*)$": "<rootDir>/src/core/$1",
+      "^@packages/(.*)$": "<rootDir>/src/packages/$1"
+    },
+    "rootDir": ".",
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/"
+    ],
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(uuid)/)"
+    ]
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
     "@eslint/js": "^9.39.2",
     "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.0.9",
     "@types/nodemailer": "^7.0.5",
@@ -73,7 +105,9 @@
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-unicorn": "^62.0.0",
     "eslint-plugin-unused-imports": "^4.3.0",
+    "jest": "^30.2.0",
     "prettier": "^3.8.0",
+    "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsc-alias": "^1.8.16",
