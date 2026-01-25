@@ -5,155 +5,107 @@ import {
   SqlOperator,
   STRING_MATCH_OPERATORS,
 } from '@constants';
+import { FilterCondition, FilterGroup, ValidationError } from '@domain';
 import { Filtering, FilterRule } from '@domain';
 import { BadRequestException } from '@exceptions';
+import { FilterStrategyFactory } from '@repositories/filters';
 import {
-  FilterStrategyFactory,
-  FilterValueSanitizer,
-} from '@repositories/filters';
+  ColumnExistenceValidator,
+  SqlInjectionValidator,
+  ValueLengthValidator,
+  ValueTypeValidator,
+} from '@repositories/validators';
 import { ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
 
-interface FilterGroup {
-  property: string;
-  filters: Filtering[];
-}
-
-interface FilterCondition {
-  sql: string;
-  params: Record<string, unknown>;
-}
-
 export class FilterApplier<E extends ObjectLiteral> {
-  private readonly filterStrategyFactory: FilterStrategyFactory<E>;
-  private readonly valueSanitizer: FilterValueSanitizer<E>;
-  private readonly MAX_VALUE_LENGTH = 255;
-  private readonly DANGEROUS_SQL_PATTERNS = [
-    /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE|UNION|SCRIPT)\b)/gi,
-    /(--|;|\/\*|\*\/|'|"|`)/g,
-  ];
+  private readonly strategyFactory: FilterStrategyFactory<E>;
+  private readonly columnValidator: ColumnExistenceValidator<E>;
+  private readonly lengthValidator: ValueLengthValidator;
+  private readonly injectionValidator: SqlInjectionValidator;
+  private readonly typeValidator: ValueTypeValidator<E>;
 
   public constructor(
     private readonly repository: Repository<E>,
-    private readonly alias: string,
+    private readonly alias?: string,
   ) {
-    this.filterStrategyFactory = new FilterStrategyFactory(repository);
-    this.valueSanitizer = new FilterValueSanitizer(repository);
+    this.strategyFactory = new FilterStrategyFactory();
+    this.columnValidator = new ColumnExistenceValidator(this.repository);
+    this.lengthValidator = new ValueLengthValidator();
+    this.injectionValidator = new SqlInjectionValidator();
+    this.typeValidator = new ValueTypeValidator(this.repository);
   }
 
   public applyFilters(qb: SelectQueryBuilder<E>, filtering: Filtering[]): void {
-    if (!this.hasFilters(filtering)) {
-      return;
-    }
+    const hasFilters = Array.isArray(filtering) && filtering.length > 0;
+    const shouldSkip = !hasFilters;
 
-    this.validateFilters(filtering);
-
-    const groups = this.groupByProperty(filtering);
-    groups.forEach((group) => {
-      this.applyFilterGroup(qb, group);
-    });
+    return shouldSkip ? undefined : this.processFilters(qb, filtering);
   }
 
-  private hasFilters(filtering: Filtering[] | undefined): boolean {
-    return Array.isArray(filtering) && filtering.length > 0;
+  private processFilters(
+    qb: SelectQueryBuilder<E>,
+    filtering: Filtering[],
+  ): void {
+    this.validateFilters(filtering);
+    const groups = this.groupByProperty(filtering);
+    groups.forEach((group) => this.applyFilterGroup(qb, group));
   }
 
   private validateFilters(filtering: Filtering[]): void {
-    const errors: string[] = [];
+    const errors = filtering.flatMap((filter, index) =>
+      this.collectFilterErrors(filter, index),
+    );
 
-    filtering.forEach((filter, index) => {
-      this.validateColumnExistence(filter.property, errors, index);
-      this.validateValueLength(filter.value, errors, index);
-      this.validateSqlInjection(filter, errors, index);
-    });
+    const hasErrors = errors.length > 0;
+    const errorMessage = errors.map((e) => `Filter ${e.index}: ${e.message}`);
 
-    if (errors.length > 0) {
-      throw new BadRequestException(
-        `Filter validation failed: ${errors.join(', ')}`,
-      );
-    }
+    return hasErrors ? this.throwValidationError(errorMessage) : undefined;
   }
 
-  private validateColumnExistence(
-    property: string,
-    errors: string[],
-    index: number,
-  ): void {
-    if (!this.isValidColumn(property)) {
-      errors.push(
-        `Filter ${index}: Property "${property}" is not a valid column`,
-      );
-    }
-  }
-
-  private validateValueLength(
-    value: string,
-    errors: string[],
-    index: number,
-  ): void {
-    if (value && value.length > this.MAX_VALUE_LENGTH) {
-      errors.push(
-        `Filter ${index}: Value length exceeds maximum of ${this.MAX_VALUE_LENGTH}`,
-      );
-    }
-  }
-
-  private validateSqlInjection(
+  private collectFilterErrors(
     filter: Filtering,
-    errors: string[],
     index: number,
-  ): void {
-    const valueToCheck = filter.value ? filter.value : '';
-    const propertyToCheck = filter.property ? filter.property : '';
+  ): ValidationError[] {
+    const validators = [
+      () => this.columnValidator.validate(filter.property),
+      () => this.lengthValidator.validate(filter.value),
+      () => this.injectionValidator.validate(filter),
+      () =>
+        this.typeValidator.validate(filter.property, filter.value, filter.rule),
+    ];
 
-    const combinedCheck = `${propertyToCheck} ${valueToCheck}`;
-
-    this.DANGEROUS_SQL_PATTERNS.forEach((pattern) => {
-      if (pattern.test(combinedCheck)) {
-        errors.push(`Filter ${index}: Potential SQL injection detected`);
-      }
-    });
+    return validators
+      .map((validate) => validate())
+      .filter((error): error is string => error !== null)
+      .map((message) => ({ index, message }));
   }
 
-  private isValidColumn(property: string): boolean {
-    const hasDot = property.includes('.');
-    const cleanProperty = hasDot ? property.split('.')[1] : property;
-
-    const columnMeta =
-      this.repository.metadata.findColumnWithPropertyName(cleanProperty);
-
-    return columnMeta !== undefined;
+  private throwValidationError(messages: string[]): never {
+    throw new BadRequestException(
+      `Filter validation failed: ${messages.join(', ')}`,
+    );
   }
 
   private groupByProperty(filters: Filtering[]): FilterGroup[] {
-    const groupsMap = new Map<string, Filtering[]>();
+    const grouped = filters.reduce<Map<string, Filtering[]>>((map, filter) => {
+      const existing = map.get(filter.property) ?? [];
+      return map.set(filter.property, [...existing, filter]);
+    }, new Map());
 
-    filters.forEach((filter) => {
-      const existingFilters = groupsMap.get(filter.property);
-      if (existingFilters) {
-        groupsMap.set(filter.property, [...existingFilters, filter]);
-      } else {
-        groupsMap.set(filter.property, [filter]);
-      }
-    });
-
-    const groups: FilterGroup[] = [];
-    groupsMap.forEach((filterList, property) => {
-      groups.push({ property, filters: filterList });
-    });
-
-    return groups;
+    return Array.from(grouped, ([property, filters]) => ({
+      property,
+      filters,
+    }));
   }
 
   private applyFilterGroup(
     qb: SelectQueryBuilder<E>,
     group: FilterGroup,
   ): void {
-    if (group.filters.length === 1) {
-      this.applySingleFilter(qb, group.filters[0], group.property);
-      return;
-    }
-
-    this.applyMultipleFiltersWithOr(qb, group);
+    const isSingleFilter = group.filters.length === 1;
+    return isSingleFilter
+      ? this.applySingleFilter(qb, group.filters[0], group.property)
+      : this.applyMultipleFiltersWithOr(qb, group);
   }
 
   private applySingleFilter(
@@ -161,135 +113,119 @@ export class FilterApplier<E extends ObjectLiteral> {
     filter: Filtering,
     property: string,
   ): void {
-    const column = this.getColumnName(property);
+    const column = this.getColumnName(property, qb);
     const operator = this.mapRuleToOperator(filter.rule);
     const paramName = this.generateParamName(property, 0);
+    const strategy = this.strategyFactory.getStrategy(operator);
 
-    const strategy = this.filterStrategyFactory.getStrategy(operator);
-    strategy.apply({
-      qb,
-      column,
-      operator,
-      filter,
-      paramName,
-    });
+    strategy.apply({ qb, column, operator, filter, paramName });
   }
 
   private applyMultipleFiltersWithOr(
     qb: SelectQueryBuilder<E>,
     group: FilterGroup,
   ): void {
-    const conditions = this.buildOrConditions(group);
-    if (conditions.length === 0) {
-      return;
-    }
+    const conditions = this.makeOrConditions(qb, group);
+    const hasConditions = conditions.length > 0;
 
-    const sql = this.buildOrSql(conditions);
-    const params = this.mergeParams(conditions);
+    return hasConditions ? this.applyOrConditions(qb, conditions) : undefined;
+  }
+
+  private applyOrConditions(
+    qb: SelectQueryBuilder<E>,
+    conditions: FilterCondition[],
+  ): void {
+    const sql = conditions.map((c) => c.sql).join(' OR ');
+    const params = conditions.reduce<Record<string, unknown>>(
+      (acc, c) => ({ ...acc, ...c.params }),
+      {},
+    );
     qb.andWhere(`(${sql})`, params);
   }
 
-  private buildOrConditions(group: FilterGroup): FilterCondition[] {
-    const conditions: FilterCondition[] = [];
-
-    group.filters.forEach((filter, index) => {
-      const column = this.getColumnName(group.property);
-      const operator = this.mapRuleToOperator(filter.rule);
-      const paramName = this.generateParamName(group.property, index);
-
-      const condition = this.buildCondition(
-        column,
-        operator,
-        filter,
-        paramName,
-      );
-
-      if (condition) {
-        conditions.push(condition);
-      }
-    });
-
-    return conditions;
+  private makeOrConditions(
+    qb: SelectQueryBuilder<E>,
+    group: FilterGroup,
+  ): FilterCondition[] {
+    return group.filters
+      .map((filter, index) => {
+        const column = this.getColumnName(group.property, qb);
+        const operator = this.mapRuleToOperator(filter.rule);
+        const paramName = this.generateParamName(group.property, index);
+        return this.makeCondition(column, operator, filter, paramName);
+      })
+      .filter((condition): condition is FilterCondition => condition !== null);
   }
 
-  private buildCondition(
+  private makeCondition(
     column: string,
     operator: SqlOperator,
     filter: Filtering,
     paramName: string,
   ): FilterCondition | null {
-    if (ARRAY_OPERATORS.has(operator)) {
-      return this.buildArrayCondition(column, operator, filter, paramName);
-    }
+    const builders = new Map<boolean, () => FilterCondition | null>([
+      [
+        ARRAY_OPERATORS.has(operator),
+        () => this.makeArrayCondition(column, operator, filter, paramName),
+      ],
+      [
+        NULL_OPERATORS.has(operator),
+        () => this.makeNullCondition(column, operator),
+      ],
+      [
+        STRING_MATCH_OPERATORS.has(operator),
+        () =>
+          this.makeStringMatchCondition(column, operator, filter, paramName),
+      ],
+    ]);
 
-    if (NULL_OPERATORS.has(operator)) {
-      return this.buildNullCondition(column, operator);
-    }
-
-    if (STRING_MATCH_OPERATORS.has(operator)) {
-      return this.buildStringMatchCondition(
-        column,
-        operator,
-        filter,
-        paramName,
-      );
-    }
-
-    return this.buildComparisonCondition(column, operator, filter, paramName);
+    const builder = Array.from(builders).find(([condition]) => condition)?.[1];
+    return builder
+      ? builder()
+      : this.makeComparisonCondition(column, operator, filter, paramName);
   }
 
-  private buildArrayCondition(
+  private makeArrayCondition(
     column: string,
     operator: SqlOperator,
     filter: Filtering,
     paramName: string,
   ): FilterCondition | null {
     const rawValues = this.parseArrayValue(filter.value);
-    if (rawValues.length === 0) {
-      return null;
-    }
+    const hasValues = rawValues.length > 0;
 
-    const sanitizedValues = this.valueSanitizer.sanitize(
-      filter.property,
-      rawValues,
-    );
-    if (sanitizedValues.length === 0) {
-      return null;
-    }
-
-    return {
-      sql: `${column} ${operator} (:...${paramName})`,
-      params: { [paramName]: sanitizedValues },
-    };
+    return hasValues
+      ? {
+          sql: `${column} ${operator} (:...${paramName})`,
+          params: { [paramName]: rawValues },
+        }
+      : null;
   }
 
-  private buildNullCondition(
+  private makeNullCondition(
     column: string,
     operator: SqlOperator,
   ): FilterCondition {
-    return {
-      sql: `${column} ${operator}`,
-      params: {},
-    };
+    return { sql: `${column} ${operator}`, params: {} };
   }
 
-  private buildStringMatchCondition(
+  private makeStringMatchCondition(
     column: string,
     operator: SqlOperator,
     filter: Filtering,
     paramName: string,
   ): FilterCondition {
-    const filterValue = filter.value ? filter.value : '';
-    const safeValue = this.escapeLikeValue(filterValue);
-    const wildcardValue = `%${safeValue}%`;
+    const value = filter.value || '';
+    const escaped = this.escapeLikeValue(value);
+    const wildcarded = `%${escaped}%`;
 
     return {
       sql: `${column} ${operator} :${paramName}`,
-      params: { [paramName]: wildcardValue },
+      params: { [paramName]: wildcarded },
     };
   }
 
-  private buildComparisonCondition(
+  private makeComparisonCondition(
     column: string,
     operator: SqlOperator,
     filter: Filtering,
@@ -302,42 +238,30 @@ export class FilterApplier<E extends ObjectLiteral> {
   }
 
   private parseArrayValue(value: string): string[] {
-    if (!value) {
-      return [];
-    }
-
     return value
-      .split(',')
-      .map((v) => v.trim())
-      .filter((v) => v.length > 0);
+      ? value
+          .split(',')
+          .map((v) => v.trim())
+          .filter((v) => v.length > 0)
+      : [];
   }
 
   private escapeLikeValue(value: string): string {
-    return value
-      .replace(/\\/g, '\\\\')
-      .replace(/%/g, '\\%')
-      .replace(/_/g, '\\_');
+    const replacements: Array<[RegExp, string]> = [
+      [/\\/g, '\\\\'],
+      [/%/g, '\\%'],
+      [/_/g, '\\_'],
+    ];
+
+    return replacements.reduce(
+      (result, [pattern, replacement]) => result.replace(pattern, replacement),
+      value,
+    );
   }
 
-  private buildOrSql(conditions: FilterCondition[]): string {
-    return conditions.map((c) => c.sql).join(' OR ');
-  }
-
-  private mergeParams(conditions: FilterCondition[]): Record<string, unknown> {
-    const merged: Record<string, unknown> = {};
-
-    conditions.forEach((condition) => {
-      Object.assign(merged, condition.params);
-    });
-
-    return merged;
-  }
-
-  private getColumnName(property: string): string {
-    if (property.includes('.')) {
-      return property;
-    }
-    return `${this.alias}.${property}`;
+  private getColumnName(property: string, qb: SelectQueryBuilder<E>): string {
+    const hasAlias = property.includes('.');
+    return hasAlias ? property : `${this.alias ?? qb.alias}.${property}`;
   }
 
   private mapRuleToOperator(rule: FilterRule): SqlOperator {
@@ -356,15 +280,11 @@ export class FilterApplier<E extends ObjectLiteral> {
       [FilterRule.IS_NOT_NULL]: SQL_OPERATORS.ISNOTNULL,
     };
 
-    const operator = operatorMap[rule];
-    if (operator) {
-      return operator;
-    }
-    return SQL_OPERATORS.EQ;
+    return operatorMap[rule];
   }
 
   private generateParamName(property: string, index: number): string {
-    const sanitizedProperty = property.replace(/[^a-zA-Z0-9_]/g, '_');
-    return `param_${sanitizedProperty}_${index}`;
+    const sanitized = property.replace(/[^a-zA-Z0-9_]/g, '_');
+    return `param_${sanitized}_${index}`;
   }
 }

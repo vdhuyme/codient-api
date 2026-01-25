@@ -1,6 +1,6 @@
-import { ObjectLiteral } from 'typeorm';
-import { FilterStrategy, FilterStrategyContext } from '@repositories/filters';
 import { SqlOperator, STRING_MATCH_OPERATORS } from '@constants';
+import { FilterStrategy, FilterStrategyContext } from '@repositories/filters';
+import { ObjectLiteral } from 'typeorm';
 
 export class StringFilterStrategy<
   E extends ObjectLiteral,
@@ -17,7 +17,7 @@ export class StringFilterStrategy<
     paramName,
   }: FilterStrategyContext<E>): void {
     qb.andWhere(`${column} ${operator} :${paramName}`, {
-      [paramName]: `%${filter.value ?? ''}%`,
+      [paramName]: `%${filter.value}%`,
     });
   }
 }

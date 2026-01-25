@@ -1,7 +1,8 @@
 import { logger } from '@config';
+import { isNil } from './ts-utils';
 
 export const parseBoolean = (value?: string, defaultValue = false): boolean => {
-  if (value === undefined || value === null) {
+  if (isNil(value)) {
     return defaultValue;
   }
 

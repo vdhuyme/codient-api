@@ -10,7 +10,7 @@ import { UserRepository } from '@repositories';
 
 @injectable()
 export class AuthService {
-  constructor(
+  public constructor(
     @inject(TYPES.UserRepository)
     private readonly userRepository: UserRepository,
 
@@ -25,7 +25,11 @@ export class AuthService {
     }
   }
 
-  async register(name: string, email: string, password: string): Promise<void> {
+  public async register(
+    name: string,
+    email: string,
+    password: string,
+  ): Promise<void> {
     await this.ensureEmailNotTaken(email);
     const hashedPassword = await this.hash.make(password);
     const user = this.userRepository.create({
@@ -53,7 +57,7 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async login(
+  public async login(
     email: string,
     password: string,
   ): Promise<Record<string, string>> {
@@ -69,7 +73,7 @@ export class AuthService {
     return this.generateTokens(user!);
   }
 
-  async getUserInfo(userId: string): Promise<Omit<User, 'password'>> {
+  public async getUserInfo(userId: string): Promise<Omit<User, 'password'>> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new UnauthorizedException('User not found');
@@ -79,7 +83,7 @@ export class AuthService {
     return userWithoutPassword;
   }
 
-  redirect(): string {
+  public redirect(): string {
     const scope: string[] = [
       'https://www.googleapis.com/auth/userinfo.profile',
       'email',
@@ -113,7 +117,7 @@ export class AuthService {
     return socialAccount;
   }
 
-  async callback(code: string): Promise<Record<string, string>> {
+  public async callback(code: string): Promise<Record<string, string>> {
     const tokenId = await this.getTokenIdFromCode(code);
     const account = await this.getSocialAccountFromToken(tokenId);
     const { email } = account;
@@ -125,7 +129,7 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
-  refreshAccessToken(refreshToken: string): string {
+  public refreshAccessToken(refreshToken: string): string {
     const [err, decoded] = tryCatch(() => {
       return jwt.verify(refreshToken, config.jwt.refreshTokenSecretKey) as {
         userId: number;
@@ -146,7 +150,7 @@ export class AuthService {
     return token;
   }
 
-  async changePassword(
+  public async changePassword(
     userId: string,
     oldPassword: string,
     newPassword: string,

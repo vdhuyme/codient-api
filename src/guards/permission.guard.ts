@@ -19,7 +19,6 @@ export class PermissionGuard implements ExpressGuard {
 
     const requiredPermissions: string[] =
       Reflect.getMetadata(PERMISSIONS_KEY, handler) ?? [];
-
     const matchMode: MatchMode =
       Reflect.getMetadata(PERMISSIONS_MATCH_MODE_KEY, handler) ?? 'any';
 

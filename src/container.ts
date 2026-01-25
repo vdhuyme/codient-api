@@ -13,7 +13,7 @@ import { dataSource } from './data-source';
 import { Hash } from '@config/hash';
 import { TransformInterceptor } from '@interceptors';
 import { UserRepository } from '@repositories';
-import { JwtGuard, PermissionGuard } from '@guards';
+import { JwtGuard } from '@guards';
 
 const container = new Container();
 const entities = [User, Category, Post, Comment];
@@ -76,6 +76,5 @@ entities.forEach((entity) => {
  * @description Bindings for Guards
  */
 container.bind(JwtGuard).toSelf().inRequestScope();
-container.bind(PermissionGuard).toSelf().inRequestScope();
 
 export { container };

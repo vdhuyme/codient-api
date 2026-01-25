@@ -4,7 +4,7 @@ class Storage {
   private baseStoragePath: string = path.join(__dirname, '../storage/');
   private basePublicPath: string = path.join(this.baseStoragePath, 'public/');
 
-  storagePath(relativePath = ''): string {
+  public storagePath(relativePath = ''): string {
     return path.join(this.baseStoragePath, relativePath);
   }
 

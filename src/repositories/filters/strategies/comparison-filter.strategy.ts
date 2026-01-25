@@ -1,5 +1,5 @@
-import { ObjectLiteral } from 'typeorm';
 import { FilterStrategy, FilterStrategyContext } from '@repositories/filters';
+import { ObjectLiteral } from 'typeorm';
 
 export class ComparisonFilterStrategy<
   E extends ObjectLiteral,

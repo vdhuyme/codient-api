@@ -1,21 +1,20 @@
-import { ObjectLiteral, Repository } from 'typeorm';
-import { SqlOperator } from '@constants/sql';
-import { FilterStrategy, FilterValueSanitizer } from '@repositories/filters';
+import { SqlOperator } from '@constants';
+import { FilterStrategy } from '@repositories/filters';
 import {
-  NullFilterStrategy,
   ArrayFilterStrategy,
-  StringFilterStrategy,
   ComparisonFilterStrategy,
+  NullFilterStrategy,
+  StringFilterStrategy,
 } from '@repositories/filters/strategies';
+import { ObjectLiteral } from 'typeorm';
 
 export class FilterStrategyFactory<E extends ObjectLiteral> {
-  private readonly strategies: FilterStrategy<E>[];
+  private readonly strategies: Array<FilterStrategy<E>>;
 
-  public constructor(repository: Repository<E>) {
-    const sanitizer = new FilterValueSanitizer(repository);
+  public constructor() {
     this.strategies = [
       new NullFilterStrategy<E>(),
-      new ArrayFilterStrategy<E>(sanitizer),
+      new ArrayFilterStrategy<E>(),
       new StringFilterStrategy<E>(),
       new ComparisonFilterStrategy<E>(),
     ];
